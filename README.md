@@ -5,18 +5,32 @@
 [![Travis (.org)](https://img.shields.io/travis/wasndas/cluplus)](https://travis-ci.org/wasndas/cluplus)
 [![codecov](https://codecov.io/gh/wasndas/cluplus/branch/main/graph/badge.svg)](https://codecov.io/gh/wasndas/cluplus)
 
-Skymaker camera based on sdss-basecam
+## Features
 
-## from [lvmtan](https://github.com/sdss/lvmtan) run:
+- RPC/Corba/Zeroc Ice style actor communications
+- Recursive config file loading
 
-    poetry run container_start --name lvm.all
+   
+## Prerequisites
 
-## from [lvmpwi](https://github.com/sdss/lvmpwi) run:
+Some linux distributions do not have python >= 3.7 as the standard python3 version.
 
-    poetry run container_start --name=lvm.sci.pwi --simulator
+### Centos 8.X
 
-## from cluplus run:
+    # as root
+    yum install python38
+    # as user 
+    python3.8  -m pip  install --user --upgrade pip
+    pip3.8 install poetry
+    export PATH=~/.local/bin/:$PATH
 
-    poetry run python utils/plot_cluplus.py -v -c python/cluplus/etc/cameras.yaml lvm.sci.agw.cam
+### OpenSuSe 15.2/15.3
 
-
+    # as root
+    zypper ar https://download.opensuse.org/repositories/devel:/languages:/python:/Factory/openSUSE_Leap_15.2/ devel_python
+    zypper install python39-devel
+    # as user 
+    python3.9 -m ensurepip --default-pip # Alternatve: python3.9 -m venv ~/.local 
+    pip3.9 install --upgrade pip
+    pip3.9 install poetry
+    export PATH=~/.local/bin/:$PATH
