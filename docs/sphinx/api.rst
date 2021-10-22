@@ -1,7 +1,7 @@
 
 .. _api:
 
-skymakercam Reference
+cluplus Reference
 =========================
 
 .. _api-main:
@@ -9,7 +9,7 @@ skymakercam Reference
 Main
 ----
 
-.. automodule:: skymakercam.main
+.. automodule:: cluplus.main
    :members:
    :undoc-members:
    :show-inheritance:

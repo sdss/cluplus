@@ -1,12 +1,12 @@
 
-skymakercam's documentation
+cluplus's documentation
 =============================================
 
-This is the documentation for the SDSS Python product skymakercam. The current version is |skymakercam_version|. You can install the package by doing
+This is the documentation for the SDSS Python product cluplus. The current version is |cluplus_version|. You can install the package by doing
 
 .. code-block:: console
 
-  $ pip install sdss-skymakercam
+  $ pip install sdss-cluplus
 
 
 Contents
@@ -15,8 +15,8 @@ Contents
 .. toctree::
   :maxdepth: 2
 
-  What's new in skymakercam? <CHANGELOG>
-  Introduction to skymakercam <intro>
+  What's new in cluplus? <CHANGELOG>
+  Introduction to cluplus <intro>
 
 
 Reference
