@@ -13,7 +13,7 @@ from contextlib import suppress
 from clu.actor import AMQPActor
 from cluplus.configloader import Loader
 
-from proto.actor.commands import parser as proto_command_parser
+from proto.actor.commands import command_parser as proto_command_parser
 
 
 __all__ = ["ProtoActor"]

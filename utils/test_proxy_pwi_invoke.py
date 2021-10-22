@@ -9,7 +9,7 @@ import uuid
 import sys
 
 from clu import AMQPClient, CommandStatus
-from cluplus.proxy import Proxy, ProxyException, ProxyPlainMessagException, invoke, unpack
+from cluplus.proxy import Proxy, ProxyClient, unpack, invoke
 
 import asyncio
 
@@ -17,10 +17,15 @@ async def test_proxy_pwi_invoke(ra, dec):
     amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
     await amqpc.start()
     
-    lvm_sci_pwi=Proxy("lvm.sci.pwi", amqpc)
-    lvm_skye_pwi=Proxy("lvm.skye.pwi", amqpc)
-    lvm_skyw_pwi=Proxy("lvm.skyw.pwi", amqpc)
-    lvm_spec_pwi=Proxy("lvm.spec.pwi", amqpc)
+    lvm_sci_pwi=Proxy(amqpc, "lvm.sci.pwi")
+    lvm_skye_pwi=Proxy(amqpc, "lvm.skye.pwi")
+    lvm_skyw_pwi=Proxy(amqpc, "lvm.skyw.pwi")
+    lvm_spec_pwi=Proxy(amqpc, "lvm.spec.pwi")
+
+    await lvm_sci_foc.start()
+    await lvm_skye_foc.start()
+    await lvm_sci_foc.start()
+    await lvm_spec_foc.start()
     
     try:
         await invoke(

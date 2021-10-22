@@ -3,7 +3,7 @@
 #
 # @Author: José Sánchez-Gallego
 # @Date: Dec 1, 2017
-# @Filename: skymakercam
+# @Filename: cluplus
 # @License: BSD 3-Clause
 # @Copyright: José Sánchez-Gallego
 
@@ -11,7 +11,7 @@ import argparse
 import os
 import sys
 
-from skymakercam.main import math
+from cluplus.main import math
 
 
 if __name__ == '__main__':

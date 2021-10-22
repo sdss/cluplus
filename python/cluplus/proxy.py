@@ -7,15 +7,15 @@
 
 import logging
 import asyncio
+import sys
+from copy import copy, deepcopy
 
 import json
 from types import SimpleNamespace
 from typing import Any, Callable, Optional, Awaitable
 from itertools import chain
 
-from clu import AMQPClient, AMQPReply, command_parser
-from clu.tools import CommandStatus
-from clu.model import Model
+from clu import BaseClient, AMQPReply, command_parser
 
 
 class ProxyException(Exception):
@@ -26,165 +26,152 @@ class ProxyException(Exception):
         super(ProxyException, self).__init__(argv)
 
 
-class ProxyPlainMessagException(ProxyException):
+class ProxyPartialInvokeException(ProxyException):
     """Plain message formed exception string"""
 
     def __init__(self, *argv):
 
-        super(ProxyException, self).__init__(argv)
+        super(ProxyPartialInvokeException, self).__init__(argv)
 
 
-class _ProxyMethod:
-    __slots__ = (
-        "_amqpc",
-        "_consumer",
-        "_command",
-    )
-    
-    def __init__(self, amqpc, consumer, command):
-        self._amqpc = amqpc
-        self._consumer = consumer
-        self._command = command
-    
-    def __getattr__(self, item) -> "_ProxyMethod":
-        return _ProxyMethod(".".join((self._consumer, item)), func=self.func)
-    
-    async def __call__(
-        self, 
+
+class ProxyClient:
+    """A proxy representing an actor.
+
+    Parameters
+    ----------
+    client
+        The client used to command the actor.
+    actor
+        The actor to command.
+
+    """
+
+    def __init__(self, client: BaseClient, actor: str):
+
+        self.client = client
+        self.actor = actor
+
+    def send_command(self, *args, callback: Optional[Callable[[AMQPReply], None]] = None,):
+        """Sends a command to the actor.
+
+        Returns the result of calling the client ``send_command()`` method
+        with the actor and concatenated arguments as parameters. Note that
+        in some cases the client ``send_command()`` method may be a coroutine
+        function, in which case the returned coroutine needs to be awaited.
+
+        Parameters
+        ----------
+        args
+            Arguments to pass to the actor. They will be concatenated using spaces.
+
+        """
+
+        command = " ".join(map(str, args))
+
+        return self.client.send_command(self.actor, command)
+
+
+class Proxy(ProxyClient):
+    """A proxy client with actor commands.
+
+import uuid
+from clu import AMQPClient, CommandStatus
+from cluplus.proxy import Proxy, unpack, invoke
+
+actor = "proto"
+
+amqpc = AMQPClient(name=f"proxy-{uuid.uuid4().hex[:8]}")
+amqpc.loop.run_until_complete(amqpc.start())
+
+proxy = Proxy(amqpc, actor)
+amqpc.loop.run_until_complete(proxy.start())
+
+amqpc.loop.run_until_complete(proxy.ping())
+unpack(amqpc.loop.run_until_complete(proxy.ping()))
+
+try:
+   amqpc.loop.run_until_complete(proxy.errPassAsError())
+except Exception as ex:
+   print(ex)
+
+try:
+   amqpc.loop.run_until_complete(invoke(proxy.ping(), proxy.version(), proxy.errPassAsError()))
+except Exception as ex:
+   print(ex)
+
+    """
+    def __init__(self, client: BaseClient, actor: str):
+       super().__init__(client, actor)
+
+    async def start(self):
+        """Query actor for commands."""
+
+        reply = await (await self.send_command("__commands"))
+
+        commands = reply.replies[-1].body['help']
+        
+        for c in commands:
+            setattr(self, c, lambda c=c, *args, blocking=True, **kwargs: self.call_command(c, *args, blocking=blocking, **kwargs))
+
+
+    async def call_command(
+        self,
+        command: str,
         *args,
+        callback: Optional[Callable[[AMQPReply], None]] = None,
         blocking: bool = True,
-        callback: Callable[[Any], Awaitable[None]] = None,
-        timeout = 1.4142,
         **kwargs,
     ):
         opts=list(chain.from_iterable(('--'+k, v) for k, v in kwargs.items()))
-        command =  await asyncio.wait_for(self._amqpc.send_command(self._consumer, self._command.lower(), *args, *opts, callback=callback), timeout) 
-        return await command if blocking else command
 
-
-class Proxy:
-    __slots__ = (
-        "_consumer",
-        "_amqpc"
-    )
+        command =  await self.client.send_command(self.actor, command, *args, *opts, callback=callback)
+        
+        if not blocking: return command
     
-    def __init__(
-        self, 
-        consumer: str,
-        amqpc: AMQPClient
-    ):
-        self._consumer = consumer
-        self._amqpc = amqpc
-    
-    def __getattr__(self, command) -> _ProxyMethod:
-        return _ProxyMethod(self._amqpc, self._consumer, command)
-    
+        ret = await command
 
-def _stringToException(errstr):
-    """converts a string to an exception object"""
-    try:
-       return eval(errstr) # Maybe a bad idea - code injection
-   
-    except SyntaxError as e:
-       return ProxyPlainMessagException(errstr)
-   
-    except Exception as e:
-       return Exception("Unexpected exception in parsing exception string", e)
+        if hasattr(ret, "status") and ret.status.did_fail:
+            raise self._errorMapToException(ret.replies[-1].body['error'])
+
+        return ret.replies[-1].body
+
+    @staticmethod
+    def _errorMapToException(em: dict):
+        return Proxy._stringToException(em['exception_message'], em['exception_type'], em['exception_module'])
 
 
-def _stringToException2(errtype, errstr):
-    """converts a string to an exception object"""
-    
-    from pydoc import locate
-    
-    try:
-       return locate(errtype)(errstr)
-   
-    except SyntaxError as e:
-       return ProxyPlainMessagException(errstr)
-   
-    except Exception as e:
-       return Exception("Unexpected exception in parsing exception string", e)
+    @staticmethod
+    def _stringToException(value_string, type_name='Exception', module_name='builtins'):
+        try:
+            module = sys.modules[module_name] if module_name in sys.modules else __import__(module_name, fromlist=type_name)
+            return getattr(module, type_name)(value_string)
+
+        except AttributeError:
+            return Exception(f'Unknown exception type {type_name} - {value_string}')
+
+        except ImportError:
+            return Exception(f'Unknown module type {module_name} - {type_name}: {value_string}')
 
 
 
-
-class DictObject(object):
-    """converts a dict to an object
-    
-    Note: Ideally tthis whould be done before converting with json from string to dict.
-    
-      import json
-      from collections import namedtuple
-
-      json.loads(data, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
-      
-      
-      import json
-      from types import SimpleNamespace
-
-      data = '{"name": "John Smith", "hometown": {"name": "New York", "id": 123}}'
-
-      # Parse JSON into an object with attributes corresponding to dict keys.
-      x = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
-      print(x.name, x.hometown.name, x.hometown.id)
-    
-    Note: or https://github.com/Infinidat/munch
-    
-    """
-    def __str__(self):
-        return str(self._dict)
-    
-    def __init__(self, d):
-        self._dict=d
-        for a, b in d.items():
-            if isinstance(b, (list, tuple)):
-               setattr(self, a, [DictObject(x) if isinstance(x, dict) else x for x in b])
-            else:
-               setattr(self, a, DictObject(b) if isinstance(b, dict) else b)
-
-
-async def invoke(*argv, raw=False, **kwargs):
+async def invoke(*argv):
     """invokes one or many commands in parallel
     
-       On error it throws an exception if one of the commands fails as a dict with an exception or None for every command. 
-       For a single command it throws only an exception.
-    
-       Parameters
-       ----------
-       
-       raw
-           True: returns the body of the finish reply as a dict
-           False: returns the body of the finish reply as a DictObject
-       
+    On error it throws an exception if one of the commands fails as a dict with an exception and return values for every command.
     """
-    
-    if len(argv) > 1:
-        ret = await asyncio.gather(*[asyncio.create_task(cmd) for cmd in argv])
-        errors=[]
-        for r in ret:
-            hasErrors=False
-            if r.status.did_fail:
-                hasErrors=True
-                errors.append(_stringToException(r.replies[-1].body['error']))
-            else:
-                errors.append(None)
-        if hasErrors: raise ProxyException(errors)
-        if raw: return [r.replies[-1].body for r in ret]
-        else: return [DictObject(r.replies[-1].body) for r in ret]
-    else:
-        ret = await argv[0]
-        if ret.status.did_fail:
-            raise _stringToException(ret.replies[-1].body['error'])
-        else:
-            if raw: return ret.replies[-1].body
-            else: return DictObject(ret.replies[-1].body)
+    ret = await asyncio.gather(*[asyncio.create_task(cmd) for cmd in argv], return_exceptions=True)
+    for r in ret:
+        if isinstance(r, Exception):
+            raise ProxyPartialInvokeException(ret)
+    return ret
+        
 
-async def unpack(cmd, *argv, **kwargs):
+def unpack(ret, *argv):
     """ invokes one command and unpacks every parameter from the body of the finish reply
     
         It uses pythons list unpacking mechanism PEP3132, be warned if you dont use it the correct way.
-       
+    
         >>> a, b, c = [1, 2, 3]
         >>> a
         1
@@ -206,12 +193,11 @@ async def unpack(cmd, *argv, **kwargs):
 
         Parameters
         ----------
-       
+    
         argv
-           return only the parameters from argv
+        return only the parameters from argv
     """
     
-    ret = await invoke(cmd, raw=True)
     if len(ret) == 0: return
     elif len(ret) == 1: return list(ret.values())[0] # Maybe we should check if argv is not empty and throw an exception
     elif len(argv) > 1: return [ret[i] for i in argv]

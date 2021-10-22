@@ -1,4 +1,4 @@
-.. _skymakercam-changelog:
+.. _cluplus-changelog:
 
 ==========
 Change Log

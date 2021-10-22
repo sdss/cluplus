@@ -1,9 +1,9 @@
-# skymakercam
+# cluplus
 
 ![Versions](https://img.shields.io/badge/python->3.7-blue)
-[![Documentation Status](https://readthedocs.org/projects/sdss-skymakercam/badge/?version=latest)](https://sdss-skymakercam.readthedocs.io/en/latest/?badge=latest)
-[![Travis (.org)](https://img.shields.io/travis/wasndas/skymakercam)](https://travis-ci.org/wasndas/skymakercam)
-[![codecov](https://codecov.io/gh/wasndas/skymakercam/branch/main/graph/badge.svg)](https://codecov.io/gh/wasndas/skymakercam)
+[![Documentation Status](https://readthedocs.org/projects/sdss-cluplus/badge/?version=latest)](https://sdss-cluplus.readthedocs.io/en/latest/?badge=latest)
+[![Travis (.org)](https://img.shields.io/travis/wasndas/cluplus)](https://travis-ci.org/wasndas/cluplus)
+[![codecov](https://codecov.io/gh/wasndas/cluplus/branch/main/graph/badge.svg)](https://codecov.io/gh/wasndas/cluplus)
 
 Skymaker camera based on sdss-basecam
 
@@ -15,8 +15,8 @@ Skymaker camera based on sdss-basecam
 
     poetry run container_start --name=lvm.sci.pwi --simulator
 
-## from skymakercam run:
+## from cluplus run:
 
-    poetry run python utils/plot_skymakercam.py -v -c python/skymakercam/etc/cameras.yaml lvm.sci.agw.cam
+    poetry run python utils/plot_cluplus.py -v -c python/cluplus/etc/cameras.yaml lvm.sci.agw.cam
 
 

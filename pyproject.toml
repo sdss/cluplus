@@ -1,13 +1,13 @@
 [tool.poetry]
-name = "sdss-skymakercam"
+name = "sdss-cluplus"
 version = "0.1.0-alpha.0"
 description = "Skymaker camera with sdss-basecam"
 authors = ["Florian Briegel <briegel@mpia.de>"]
 license = "BSD-3-Clause"
 readme = "README.md"
-homepage = "https://github.com/wasndas/skymakercam"
-repository = "https://github.com/wasndas/skymakercam"
-documentation = "https://sdss-skymakercam.readthedocs.org"
+homepage = "https://github.com/wasndas/cluplus"
+repository = "https://github.com/wasndas/cluplus"
+documentation = "https://sdss-cluplus.readthedocs.org"
 keywords = ["astronomy", "software"]
 classifiers = [
     "Intended Audience :: Science/Research",
@@ -20,16 +20,16 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 packages = [
-    { include = "skymakercam", from = "python" }
+    { include = "cluplus", from = "python" }
 ]
-include = ["python/skymakercam/etc/*"]
+include = ["python/cluplus/etc/*"]
 
 [tool.poetry.build]
 script = "build.py"
 generate-setup-file = false
 
 [tool.poetry.scripts]
-singleframe = "skymakercam.__main__:main"
+singleframe = "cluplus.__main__:main"
 plotloop = "utils.plotloop:main"
 proto = "proto.__main__:proto"
 
@@ -76,7 +76,7 @@ Sphinx = "^3.0.0"
 line_length = 79
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "SDSS", "FIRSTPARTY", "LOCALFOLDER"]
 default_section = "THIRDPARTY"
-known_first_party = "skymakercam"
+known_first_party = "cluplus"
 known_sdss = ["sdsstools"]
 balanced_wrapping = true
 include_trailing_comma = false
@@ -84,11 +84,11 @@ lines_after_imports = 2
 use_parentheses = true
 
 [tool.pytest.ini_options]
-addopts = "--cov skymakercam --cov-report xml --cov-report html --cov-report term"
+addopts = "--cov cluplus --cov-report xml --cov-report html --cov-report term"
 
 [tool.coverage.run]
 branch = true
-include = ["python/skymakercam/*"]
+include = ["python/cluplus/*"]
 omit = [
     "*/__init__.py",
 ]

@@ -51,8 +51,7 @@ from __future__ import annotations
 
 import click
 from clu.command import Command
-
-from proto.actor.commands import parser
+from clu.parsers.click import command_parser
 
 import numpy as np
 from astropy.io import fits
@@ -70,7 +69,7 @@ class JsonPickleParamType(click.ParamType):
             self.fail(f"{value!r} is not a valid jsonpickle", param, ctx)
 
 
-@parser.command()
+@command_parser.command("bigData")
 @click.argument("data", type=JsonPickleParamType())
 async def bigData(command: Command, data):
     """Returns the status of the outlets."""

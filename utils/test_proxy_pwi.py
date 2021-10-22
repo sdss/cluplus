@@ -16,21 +16,22 @@ import asyncio
 
 async def test_simple_pwi_ctrl():
     
-    consumer = "lvm.sci.pwi"
-    amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
-    await amqpc.start()
+    actor = "lvm.sci.pwi"
     
-    lvm_sci_pwi=Proxy(consumer, amqpc)
-
     try:
+        amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
+        await amqpc.start()
+
+        lvm_sci_pwi = Proxy(amqpc, actor)
+        await amqpc.start()
       
-        ret = await unpack(lvm_sci_pwi.help())
+        ret = unpack(await lvm_sci_pwi.help())
        
         await lvm_sci_pwi.setConnected(True)
         
         await lvm_sci_pwi.setEnabled(True)
         
-        isTracking = await unpack(lvm_sci_pwi.setTracking(True))
+        isTracking = unpack(await lvm_sci_pwi.setTracking(True))
         assert isTracking == True
         
         # lets define a callback for status updates.
@@ -43,6 +44,9 @@ async def test_simple_pwi_ctrl():
         # we do use send_command/click options without --, it will be added internally
         await lvm_sci_pwi.offset(ra_add_arcsec=10)
         
+    except ProxyPlainMessagExceptionas e:
+        amqpc.log.warning(f"ProxyPlainMessagExceptionas: {e}")
+
     except Exception as e:
         amqpc.log.warning(f"Exception: {e}")
 

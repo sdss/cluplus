@@ -9,7 +9,7 @@ import uuid
 import sys
 
 from clu import AMQPClient, CommandStatus
-from cluplus.proxy import Proxy, ProxyException, ProxyPlainMessagException, invoke, unpack
+from cluplus.proxy import Proxy, ProxyClient, unpack, invoke
 
 import asyncio
 
@@ -20,11 +20,14 @@ async def test_single_param_return():
     amqpc = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}")
     await amqpc.start()
     
-    lvm_sci_foc=Proxy(consumer, amqpc)
+    lvm_sci_foc=Proxy(amqpc, consumer)
+    await lvm_sci_foc.start()
+    
     amqpc.log.warning(sys.argv[0])
         
-    amqpc.log.warning(f'#1: {await unpack(lvm_sci_foc.isReachable())}')
-    pos, unit = await unpack(lvm_sci_foc.getDeviceEncoderPosition("UM"))
+    amqpc.log.warning(f'#1: {unpack(await lvm_sci_foc.isReachable())}')
+    
+    pos, unit = unpack(await lvm_sci_foc.getDeviceEncoderPosition("UM"))
     amqpc.log.warning(f'#2: {pos}, {unit}')
 
     amqpc.log.warning(f'#3: {(await invoke(lvm_sci_foc.getPosition())).Position}')
@@ -32,7 +35,7 @@ async def test_single_param_return():
     pos = await invoke(lvm_sci_foc.getDeviceEncoderPosition("UM"))
     amqpc.log.warning(f'#4: {pos.DeviceEncoderPosition}')
 
-    pos = await unpack(lvm_sci_foc.getDeviceEncoderPosition("UM"))
+    pos = unpack(await lvm_sci_foc.getDeviceEncoderPosition("UM"))
     amqpc.log.warning(f'#5 {pos}')
 
     amqpc.log.warning(f'#6: {await invoke(lvm_sci_foc.getNamedPosition(1))}')
@@ -48,7 +51,7 @@ async def test_single_param_return():
         amqpc.log.warning(f"Exception: {e}")
 
     try:
-        await unpack(lvm_sci_foc.getDeviceEncoderPositin("UM"))
+        unpack(await lvm_sci_foc.getDeviceEncoderPositin("UM"))
     except Exception as e:
         amqpc.log.warning(f"Exception: {e}")
 
@@ -62,12 +65,13 @@ async def test_single_param_return():
     amqpc = AMQPClient(name=f"{sys.argv[0]}.client-{uuid.uuid4().hex[:8]}")
     await amqpc.start()
     
-    lvm_sci_foc=Proxy(consumer, amqpc)
+    lvm_sci_foc=Proxy(amqpc, consumer)
+    await lvm_sci_foc.start()
     
     amqpc.log.warning(f'#1: {(await invoke(lvm_sci_foc.isReachable())).Reachable}')
     
-    amqpc.log.warning(f'#2: {await unpack(lvm_sci_foc.isReachable())}')
-    amqpc.log.warning(f'#3: {await unpack(lvm_sci_foc.getDeviceEncoderPosition("UM"))}')
+    amqpc.log.warning(f'#2: {unpack(await lvm_sci_foc.isReachable())}')
+    amqpc.log.warning(f'#3: {unpack(await lvm_sci_foc.getDeviceEncoderPosition("UM"))}')
     
 asyncio.run(test_single_param_return())
 
@@ -78,7 +82,8 @@ async def test_callback_and_blocking():
     amqpc = AMQPClient(name=f"{sys.argv[0]}.client-{uuid.uuid4().hex[:8]}")
     await amqpc.start()
     
-    lvm_sci_foc=Proxy(consumer, amqpc)
+    lvm_sci_foc=Proxy(amqpc, consumer)
+    await lvm_sci_foc.start()
     
     def toHome_callback(reply): amqpc.log.warning(f"Reply: {CommandStatus.code_to_status(reply.message_code)} {reply.body}")
     await lvm_sci_foc.moveToHome(callback=toHome_callback)
@@ -95,11 +100,17 @@ async def test_tasks():
     amqpc = AMQPClient(name=f"{sys.argv[0]}.client-{uuid.uuid4().hex[:8]}")
     await amqpc.start()
     
-    lvm_sci_foc=Proxy("lvm.sci.foc", amqpc)
-    lvm_skye_foc=Proxy("lvm.skye.foc", amqpc)
-    lvm_skyw_foc=Proxy("lvm.skyw.foc", amqpc)
-    lvm_spec_foc=Proxy("lvm.spec.foc", amqpc)
+    lvm_sci_foc=Proxy(amqpc, "lvm.sci.foc")
+    await lvm_sci_foc.start()
     
+    lvm_skye_foc=Proxy(amqpc, "lvm.skye.foc")
+    await lvm_skye_foc.start()
+    
+    lvm_skyw_foc=Proxy(amqpc, "lvm.skyw.foc")
+    await lvm_sci_foc.start()
+    
+    lvm_skyw_foc=Proxy(amqpc, "lvm.spec.foc")
+    await lvm_spec_foc.start()
     
     ret = await invoke(
             lvm_sci_foc.moveToHome(),
@@ -124,16 +135,18 @@ async def test_callback_and_parallel_classic():
     amqpc = AMQPClient(name=f"{sys.argv[0]}.client-{uuid.uuid4().hex[:8]}")
     await amqpc.start()
     
-    lvm_sci_foc=Proxy("lvm.sci.foc", amqpc)
-    lvm_skye_foc=Proxy("lvm.skye.foc", amqpc)
+    lvm_sci_foc=Proxy(amqpc, "lvm.sci.foc")
+    lvm_skye_foc=Proxy(amqpc, "lvm.skye.foc")
     
     def toHome_callback(reply): amqpc.log.warning(f"Reply: {CommandStatus.code_to_status(reply.message_code)} {reply.body}")
+    
     lvm_sci_foc_future = await lvm_sci_foc.moveToHome(callback=toHome_callback, blocking=False)
     lvm_skye_foc_future = await lvm_skye_foc.moveToHome(callback=toHome_callback, blocking=False)
     await lvm_sci_foc_future
     await lvm_skye_foc_future
     
     def toLimit_callback(reply): amqpc.log.warning(f"Reply: {CommandStatus.code_to_status(reply.message_code)} {reply.body}")
+    
     lvm_sci_foc_future = await lvm_sci_foc.moveToLimit(-1, callback=toLimit_callback, blocking=False)
     lvm_skye_foc_future = await lvm_skye_foc.moveToLimit(-1, callback=toLimit_callback, blocking=False)
     await lvm_sci_foc_future
@@ -147,10 +160,10 @@ async def test_callback_and_gather_raw():
     amqpc = AMQPClient(name=f"{sys.argv[0]}.client-{uuid.uuid4().hex[:8]}")
     await amqpc.start()
     
-    lvm_sci_foc=Proxy("lvm.sci.foc", amqpc)
-    lvm_skye_foc=Proxy("lvm.skye.foc", amqpc)
-    lvm_skyw_foc=Proxy("lvm.skyw.foc", amqpc)
-    lvm_spec_foc=Proxy("lvm.spec.foc", amqpc)
+    lvm_sci_foc=Proxy(amqpc, "lvm.sci.foc")
+    lvm_skye_foc=Proxy(amqpc, "lvm.skye.foc")
+    lvm_skyw_foc=Proxy(amqpc, "lvm.skyw.foc")
+    lvm_spec_foc=Proxy(amqpc, "lvm.spec.foc")
     
     
     ret = await asyncio.gather(
@@ -158,6 +171,7 @@ async def test_callback_and_gather_raw():
             await lvm_skye_foc.moveToHome(blocking=False),
             await lvm_skyw_foc.moveToHome(blocking=False),
             await lvm_spec_foc.moveToHome(blocking=False),
+            return_exceptions=True
           )
     amqpc.log.warning(f"{ret}")
     
@@ -166,6 +180,7 @@ async def test_callback_and_gather_raw():
                     await lvm_skye_foc.moveToLimit(-1, blocking=False),
                     await lvm_skyw_foc.moveToLimit(-1, blocking=False),
                     await lvm_spec_foc.moveToLimit(-1, blocking=False),
+                    return_exceptions=True 
                   )
     amqpc.log.warning(f"{ret}")
 

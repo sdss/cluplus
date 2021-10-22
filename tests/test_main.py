@@ -4,7 +4,7 @@
 
 from pytest import mark
 
-from skymakercam.main import math
+from cluplus.main import math
 
 
 class TestMath(object):
