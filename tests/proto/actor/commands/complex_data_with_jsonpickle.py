@@ -14,7 +14,6 @@ import time
 import uuid
 
 import numpy as np
-from astropy.io import fits
 import jsonpickle
 import asyncio
 from proto.actor.exceptions import ProtoActorAPIError
@@ -29,7 +28,7 @@ loop.run_until_complete(amqpc.start())
 def bigData(data):
     async def _call(data):
         proxy = amqpc.proxy('proto')
-        fut = await proxy.send_command("bigdata", "'" + data + "'")
+        fut = await proxy.send_command("bigData", "'" + data + "'")
         return await fut
     pickled_data = jsonpickle.encode(data, make_refs=False)
     return loop.run_until_complete(_call(pickled_data))
@@ -54,7 +53,6 @@ from clu.command import Command
 from clu.parsers.click import command_parser
 
 import numpy as np
-from astropy.io import fits
 import jsonpickle
 
 from functools import reduce

@@ -17,23 +17,7 @@ from itertools import chain
 
 from clu import BaseClient, AMQPReply, command_parser
 
-
-class ProxyException(Exception):
-    """Base proxy exception"""
-
-    def __init__(self, argv):
-
-        super(ProxyException, self).__init__(argv)
-
-
-class ProxyPartialInvokeException(ProxyException):
-    """Plain message formed exception string"""
-
-    def __init__(self, *argv):
-
-        super(ProxyPartialInvokeException, self).__init__(argv)
-
-
+from .exceptions import *
 
 class ProxyClient:
     """A proxy representing an actor.

@@ -59,6 +59,9 @@ ipdb = ">=0.12.3"
 rstcheck = "^3.3.1"
 Sphinx = "^3.0.0"
 sphinx-autobuild = "^2021.3.14"
+sphinx-bootstrap-theme = ">=0.8.0" 
+sphinx-markdown-builder = ">=0.5.4"
+numpy = ">=1.0"
 
 [tool.isort]
 line_length = 79

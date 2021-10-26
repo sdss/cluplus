@@ -6,7 +6,7 @@ from clu.tools import cli_coro
 
 from sdsstools.daemonizer import DaemonGroup
 
-from proto.actor.actor import ProtoActor
+from .actor.actor import ProtoActor
 
 
 @click.group(cls=DefaultGroup, default="actor", default_if_no_args=True)

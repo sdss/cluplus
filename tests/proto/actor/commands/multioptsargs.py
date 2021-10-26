@@ -15,7 +15,7 @@ from clu.command import Command
 #from . import command_parser
 from clu.parsers.click import command_parser
 
-from proto.actor.exceptions import ProtoActorAPIError
+from ..exceptions import ProtoActorAPIError
 
 
 @command_parser.command("setEnabled")
