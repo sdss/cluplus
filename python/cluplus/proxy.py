@@ -61,7 +61,7 @@ class Proxy(ProxyClient):
 
 import uuid
 from clu import AMQPClient, CommandStatus
-from cluplus.proxy import Proxy, unpack, invoke
+from cluplus.proxy import Proxy, SyncProxy
 
 actor = "proto"
 
@@ -72,7 +72,7 @@ proxy = Proxy(amqpc, actor)
 amqpc.loop.run_until_complete(proxy.start())
 
 amqpc.loop.run_until_complete(proxy.ping())
-unpack(amqpc.loop.run_until_complete(proxy.ping()))
+proxy.unpack(amqpc.loop.run_until_complete(proxy.ping()))
 
 try:
    amqpc.loop.run_until_complete(proxy.errPassAsError())
@@ -80,7 +80,7 @@ except Exception as ex:
    print(ex)
 
 try:
-   amqpc.loop.run_until_complete(invoke(proxy.ping(), proxy.version(), proxy.errPassAsError()))
+   amqpc.loop.run_until_complete(proxy.invoke(proxy.ping(), proxy.version(), proxy.errPassAsError()))
 except Exception as ex:
    print(ex)
 
@@ -139,51 +139,61 @@ except Exception as ex:
 
 
 
-async def invoke(*argv):
-    """invokes one or many commands in parallel
-    
-    On error it throws an exception if one of the commands fails as a dict with an exception and return values for every command.
-    """
-    ret = await asyncio.gather(*[asyncio.create_task(cmd) for cmd in argv], return_exceptions=True)
-    for r in ret:
-        if isinstance(r, Exception):
-            raise ProxyPartialInvokeException(ret)
-    return ret
+    @staticmethod
+    async def invoke(*argv):
+        """invokes one or many commands in parallel
         
+        On error it throws an exception if one of the commands fails as a dict with an exception and return values for every command.
+        """
+        ret = await asyncio.gather(*[asyncio.create_task(cmd) for cmd in argv], return_exceptions=True)
+        for r in ret:
+            if isinstance(r, Exception):
+                raise ProxyPartialInvokeException(ret)
+        return ret
+            
 
-def unpack(ret, *argv):
-    """ invokes one command and unpacks every parameter from the body of the finish reply
-    
-        It uses pythons list unpacking mechanism PEP3132, be warned if you dont use it the correct way.
-    
-        >>> a, b, c = [1, 2, 3]
-        >>> a
-        1
+    @staticmethod
+    def unpack(ret, *argv):
+        """ invokes one command and unpacks every parameter from the body of the finish reply
         
-        >>> a = [1, 2, 3]
-        >>> a
-        [1, 2, 3]
+            It uses pythons list unpacking mechanism PEP3132, be warned if you dont use it the correct way.
         
-        >>> a, b = [1, 2, 3]
-        Traceback (most recent call last):
-        File "<stdin>", line 1, in <module>
-        ValueError: too many values to unpack (expected 2)
+            >>> a, b, c = [1, 2, 3]
+            >>> a
+            1
+            
+            >>> a = [1, 2, 3]
+            >>> a
+            [1, 2, 3]
+            
+            >>> a, b = [1, 2, 3]
+            Traceback (most recent call last):
+            File "<stdin>", line 1, in <module>
+            ValueError: too many values to unpack (expected 2)
 
-        >>> a, *b = [1, 2, 3]
-        >>> a
-        1
-        >>> b
-        [2, 3]
+            >>> a, *b = [1, 2, 3]
+            >>> a
+            1
+            >>> b
+            [2, 3]
 
-        Parameters
-        ----------
-    
-        argv
-        return only the parameters from argv
-    """
-    
-    if len(ret) == 0: return
-    elif len(ret) == 1: return list(ret.values())[0] # Maybe we should check if argv is not empty and throw an exception
-    elif len(argv) > 1: return [ret[i] for i in argv]
-    else: return list(ret.values())
+            Parameters
+            ----------
+        
+            argv
+            return only the parameters from argv
+        """
+        
+        if len(ret) == 0: return
+        elif len(ret) == 1: return list(ret.values())[0] # Maybe we should check if argv is not empty and throw an exception
+        elif len(argv) > 1: return [ret[i] for i in argv]
+        else: return list(ret.values())
 
+
+def summon(*argv):
+    '''
+    amqpc.connection.connection 
+    (None, aio_pika.robust_connection.RobustConnection)
+    amqpc.connection.connection.is_closed
+    '''
+    pass

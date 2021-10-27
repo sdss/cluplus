@@ -25,14 +25,19 @@ from ..exceptions import ProtoActorAPIError
 async def setEnabled(command: Command, enable:bool, axis0:bool, axis1:bool):
     """mount enable/disable axis"""
 
-    command.finish()
-    
-
+    return command.finish(
+             enable=enable,
+             axis0=axis0,
+             axis1=axis1
+           )
 
 @command_parser.command("gotoRaDecJ2000")
 @click.argument("RA_H", type=float)
 @click.argument("DEG_D", type=float)
-async def gotoRaDecJ2000(command: Command, pwi: PWI4, ra_h: float, deg_d: float):
+async def gotoRaDecJ2000(command: Command, ra_h: float, deg_d: float):
     """mount goto_ra_dec_j2000"""
 
-    command.finish()
+    return command.finish(
+             ra_h=ra_h,
+             dec_d=dec_d
+           )

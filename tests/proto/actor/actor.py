@@ -32,6 +32,13 @@ class ProtoActor(AMQPActor):
     ):
         super().__init__(*args, **kwargs)
         
+        self.schema = {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": True
+                     }
+
+        self.load_schema(self.schema, is_file=False)
 
     async def start(self):
         await super().start()
