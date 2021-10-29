@@ -253,7 +253,8 @@ def unpack(ret, *keys):
 
         Pythons list unpacking mechanism PEP3132 can be used to assign the value(s)
         
-        Be warned if you dont use it the correct way.
+        Be warned if you dont use it the correct way, 
+        whould also be a good place to check the reply body format with schemas.
 
         >>> a, b, c = [1, 2, 3]
         >>> a
