@@ -285,8 +285,8 @@ def unpack(ret, *argv):
     
     if isinstance(ret, list):
         if len(argv) > 1:
-            return [d[i] for d in ret for i in argv)]
-        else
+            return [d[i] for d in ret for i in argv if i in d]
+        else:
             return [val for d in ret for val in list(d.values())]
 
 
