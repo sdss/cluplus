@@ -158,16 +158,27 @@ except Exception as ex:
     async def _sync_call_command(self, command, *args, **kwargs):
         if not self.client.connection.connection or self.client.connection.connection.is_closed:
             await self.client.start()
-        ret = await self.call_command(command, *args, **kwargs)
+        ret = await self.call_command(command,
+                                      *args,
+                                      **kwargs)
         await self.client.stop()
         return ret
 
 
     def _hybrid_call_command(self, command, *args, async_mode=False, **kwargs):
         if self.client.loop.is_running() or async_mode:
-            return self.call_command(command, *args, **kwargs)
+            return self.call_command(command,
+                                     *args,
+                                     callback:
+                                        Optional[Callable[[AMQPReply], None]] = None,
+                                     **kwargs)
         else:
-            return self.client.loop.run_until_complete(self._sync_call_command(command, *args, **kwargs))
+            return self.client.loop.run_until_complete(
+                self._sync_call_command(command,
+                                        *args,
+                                        callback:
+                                            Optional[Callable[[AMQPReply], None]] = None,
+                                        **kwargs))
 
 
     async def call_command(self,
@@ -183,8 +194,8 @@ except Exception as ex:
         future = await self.client.send_command(self.actor,
                                                  command,
                                                  *args,
-                                                 *opts,
-                                                 callback=callback)
+                                                 callback=callback
+                                                 *opts)
 
         ret = await future
 
@@ -227,6 +238,7 @@ def invoke(*cmds):
                                 return_exceptions=True)
         if client:
             await client.stop()
+
         for r in ret:
             if isinstance(r, Exception):
                 raise ProxyPartialInvokeException(ret)
