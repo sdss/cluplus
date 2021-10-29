@@ -248,12 +248,12 @@ def invoke(*cmds):
         return loop.run_until_complete(invoke_now(client, *cmds))
 
 
-def unpack(ret, *argv):
-    """ invokes one command and unpacks every parameter
-        from the body of the finish reply
+def unpack(ret, *keys):
+    """ unpacks every parameter from the body of the finish reply or list of replies.
 
-        It uses pythons list unpacking mechanism PEP3132,
-        be warned if you dont use it the correct way.
+        Pythons list unpacking mechanism PEP3132 can be used to assign the value(s)
+        
+        Be warned if you dont use it the correct way.
 
         >>> a, b, c = [1, 2, 3]
         >>> a
@@ -276,24 +276,24 @@ def unpack(ret, *argv):
 
         Parameters
         ----------
-        argv
-        return only the parameters from argv
+        keys
+        return only the parameters from keys
     """
 
     if len(ret) == 0:
         return
     
     if isinstance(ret, list):
-        if len(argv) > 1:
-            return [d[i] for d in ret for i in argv if i in d]
+        if len(keys) > 1:
+            return [d[i] for d in ret for i in keys if i in d]
         else:
             return [val for d in ret for val in list(d.values())]
 
 
     if len(ret) == 1:
         return list(ret.values())[0]
-    elif len(argv) > 1:
-        return [ret[i] for i in argv]
+    elif len(keys) > 1:
+        return [ret[i] for i in keys]
     else:
         return list(ret.values())
         
