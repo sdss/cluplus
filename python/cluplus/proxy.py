@@ -182,7 +182,6 @@ except Exception as ex:
                                         callback=callback,
                                         **kwargs))
 
-
     async def call_command(self,
                            command: str,
                            *args,
