@@ -12,7 +12,7 @@ from functools import partial
 from itertools import chain
 from typing import Callable, Optional
 from enum import Enum
-
+from inspect import getcoroutinelocals, iscoroutine
 from clu import AMQPReply, BaseClient
 
 from .exceptions import ProxyPartialInvokeException
@@ -112,7 +112,6 @@ try:
 except Exception as ex:
    print(ex)
 
-#https://stackoverflow.com/questions/33134609/python-setattr-for-dynamic-method-creator-with-decorator
     """
     
     __commands="__commands"
@@ -197,24 +196,36 @@ except Exception as ex:
             return Exception(f'Unknown module type {mn}-{tn}:{sval}')
 
 
-def invoke(*cmds, loop=asyncio.get_event_loop()):
+def invoke(*cmds):
     """invokes one or many commands in parallel
 
     On error it throws an exception if one of the commands fails as a dict
     with an exception and return values for every command.
     """
-    async def invoke_now(*cmds):
+    async def invoke_now(client, *cmds):
+        if client:
+            if not client.connection.connection or client.connection.connection.is_closed:
+                await client.start()
         ret = await asyncio.gather(*[asyncio.create_task(cmd) for cmd in cmds], 
                                 return_exceptions=True)
+        if client:
+            await client.stop()
         for r in ret:
             if isinstance(r, Exception):
                 raise ProxyPartialInvokeException(ret)
         return ret
+
+
+    first_coro=cmds[0]
+    assert(iscoroutine(first_coro))
+
+    client = getcoroutinelocals(first_coro)['self'].client
+    loop = client.loop
     
     if loop.is_running():
-        return invoke_now(*cmds)
+        return invoke_now(None, *cmds)
     else:
-        return loop.run_until_complete(invoke_now(*cmds))
+        ret = loop.run_until_complete(invoke_now(client, *cmds))
 
 
 def unpack(ret, *argv):
