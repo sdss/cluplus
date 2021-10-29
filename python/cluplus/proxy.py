@@ -87,7 +87,6 @@ async def start_ping(proto):
 
 amqpc.loop.run_until_complete(start_ping(proto))
 
-
 async def start_async_ping(proto):
     await amqpc.start()
     print(await proto.async_ping())
@@ -96,14 +95,22 @@ async def start_async_ping(proto):
 amqpc.loop.run_until_complete(start_async_ping(proto))
 
 
+invoke(proto.async_setEnabled(True, axis0=True),
+       proto.async_gotoRaDecJ2000(10,20))
+
 
 unpack(proto.ping())
 
+ret = unpack(invoke(proto.async_setEnabled(True, axis0=True),
+                    proto.async_gotoRaDecJ2000(10,20)))
+print(ret)
+
+
 try:
    proto.errPassAsError()
+   
 except Exception as ex:
    print(f"got: {ex}")
-
 
 try:
    amqpc.loop.run_until_complete(invoke(proto.ping(async_mode=True),
@@ -111,6 +118,19 @@ try:
                                         proto.async_errPassAsError()))
 except Exception as ex:
    print(ex)
+
+try:
+    async def start_async_invoke():
+        await amqpc.start()
+        await invoke(proto.ping(),
+                     proto.version(),
+                     proto.errPassAsError())
+        await amqpc.stop()
+    amqpc.loop.run_until_complete(start_async_invoke())
+except Exception as ex:
+   print(ex)
+
+
 
     """
     
@@ -225,7 +245,7 @@ def invoke(*cmds):
     if loop.is_running():
         return invoke_now(None, *cmds)
     else:
-        ret = loop.run_until_complete(invoke_now(client, *cmds))
+        return loop.run_until_complete(invoke_now(client, *cmds))
 
 
 def unpack(ret, *argv):
@@ -262,10 +282,19 @@ def unpack(ret, *argv):
 
     if len(ret) == 0:
         return
-    elif len(ret) == 1:
+    
+    if isinstance(ret, list):
+        if len(argv) > 1:
+            return [d[i] for d in ret for i in argv)]
+        else
+            return [val for d in ret for val in list(d.values())]
+
+
+    if len(ret) == 1:
         return list(ret.values())[0]
     elif len(argv) > 1:
         return [ret[i] for i in argv]
     else:
         return list(ret.values())
+        
 

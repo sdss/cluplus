@@ -39,5 +39,5 @@ async def gotoRaDecJ2000(command: Command, ra_h: float, deg_d: float):
 
     return command.finish(
              ra_h=ra_h,
-             dec_d=dec_d
+             deg_d=deg_d
            )
