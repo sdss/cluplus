@@ -7,6 +7,7 @@
 
 
 import os
+
 from yaml import SafeLoader, load
 
 
@@ -20,5 +21,3 @@ class Loader(SafeLoader):
         filename = os.path.join(self._root, self.construct_scalar(node))
         with open(filename, 'r') as f:
             return load(f, Loader)
-
-
