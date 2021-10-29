@@ -101,11 +101,8 @@ invoke(proto.async_setEnabled(True, axis0=True),
 
 unpack(proto.ping())
 
-ret = unpack(invoke(proto.async_setEnabled(True, axis0=True),
-                    proto.async_gotoRaDecJ2000(10,20)))
-print(ret)
-
-
+a, a0, b0, *coord = unpack(invoke(proto.async_setEnabled(True, axis0=True),
+                                  proto.async_gotoRaDecJ2000(10,20)))
 try:
    proto.errPassAsError()
    
