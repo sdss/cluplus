@@ -127,8 +127,6 @@ try:
 except Exception as ex:
    print(ex)
 
-
-
     """
     
     __commands="__commands"
@@ -139,6 +137,7 @@ except Exception as ex:
 
     def start(self):
         """Query and set actor commands."""
+
         def set_commands(commands):
             for c in commands:
                 setattr(self, c, partial(self._hybrid_call_command, c))
@@ -163,7 +162,6 @@ except Exception as ex:
                                       **kwargs)
         await self.client.stop()
         return ret
-
 
     def _hybrid_call_command(self,
                              command,
@@ -248,7 +246,7 @@ def invoke(*cmds):
         return ret
 
 
-    first_coro=cmds[0]
+    first_coro = cmds[0]
     assert(iscoroutine(first_coro))
 
     client = getcoroutinelocals(first_coro)['self'].client
@@ -301,7 +299,6 @@ def unpack(ret, *keys):
             return [d[i] for d in ret for i in keys if i in d]
         else:
             return [val for d in ret for val in list(d.values())]
-
 
     if len(ret) == 1:
         return list(ret.values())[0]
