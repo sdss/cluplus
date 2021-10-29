@@ -165,27 +165,30 @@ except Exception as ex:
         return ret
 
 
-    def _hybrid_call_command(self, command, *args, async_mode=False, **kwargs):
+    def _hybrid_call_command(self,
+                             command,
+                             *args,
+                             async_mode=False,
+                             callback: Optional[Callable[[AMQPReply], None]] = None,
+                             **kwargs):
+
         if self.client.loop.is_running() or async_mode:
             return self.call_command(command,
                                      *args,
-                                     callback:
-                                        Optional[Callable[[AMQPReply], None]] = None,
+                                     callback=callback,
                                      **kwargs)
         else:
             return self.client.loop.run_until_complete(
                 self._sync_call_command(command,
                                         *args,
-                                        callback:
-                                            Optional[Callable[[AMQPReply], None]] = None,
+                                        callback=callback,
                                         **kwargs))
 
 
     async def call_command(self,
                            command: str,
                            *args,
-                           callback:
-                               Optional[Callable[[AMQPReply], None]] = None,
+                           callback: Optional[Callable[[AMQPReply], None]] = None,
                            **kwargs):
 
         opts = list(chain.from_iterable(('--' + k, v)
@@ -194,7 +197,7 @@ except Exception as ex:
         future = await self.client.send_command(self.actor,
                                                  command,
                                                  *args,
-                                                 callback=callback
+                                                 callback=callback,
                                                  *opts)
 
         ret = await future
