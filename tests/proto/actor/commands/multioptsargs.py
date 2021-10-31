@@ -25,6 +25,8 @@ from ..exceptions import ProtoActorAPIError
 async def setEnabled(command: Command, enable:bool, axis0:bool, axis1:bool):
     """mount enable/disable axis"""
 
+    command.info(test="Hello world")
+    
     return command.finish(
              enable=enable,
              axis0=axis0,

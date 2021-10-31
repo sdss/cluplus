@@ -55,7 +55,7 @@ class ProtoActor(AMQPActor):
         self.log.debug("Start done")
 
     async def stop(self):
-        return super().stop()
+        return await super().stop()
 
     @classmethod
     def from_config(cls, config, *args, **kwargs):

@@ -127,6 +127,22 @@ try:
 except Exception as ex:
    print(ex)
 
+
+def callback(reply): 
+    amqpc.log.warning(f"Reply: {CommandStatus.code_to_status(reply.message_code)} {reply.body}")
+
+proto.setEnabled(True, callback=callback)
+
+
+async def start_async_setEnabled():
+        await amqpc.start()
+        await proto.setEnabled(True, callback=callback)
+        await amqpc.stop()
+
+amqpc.loop.run_until_complete(start_async_setEnabled())
+
+
+
     """
     
     __commands="__commands"
@@ -146,7 +162,7 @@ except Exception as ex:
         async def start_async():
             commands = (await self.call_command(Proxy.__commands))[Proxy.__comkey]
             set_commands(commands)
-            
+        
         if self.client.loop.is_running():
             return start_async()
         else:
@@ -154,8 +170,13 @@ except Exception as ex:
             commands = self.client.loop.run_until_complete(coro)[Proxy.__comkey]
             set_commands(commands)
 
+    def isClientConnected(self):
+        if not self.client.connection.connection:
+            return False
+        return not self.client.connection.connection.is_closed
+
     async def _sync_call_command(self, command, *args, **kwargs):
-        if not self.client.connection.connection or self.client.connection.connection.is_closed:
+        if not self.isClientConnected():
             await self.client.start()
         ret = await self.call_command(command,
                                       *args,
@@ -230,14 +251,13 @@ def invoke(*cmds):
     On error it throws an exception if one of the commands fails as a dict
     with an exception and return values for every command.
     """
-    async def invoke_now(client, *cmds):
-        if client:
-            if not client.connection.connection or client.connection.connection.is_closed:
-                await client.start()
+    async def invoke_now(proxy, *cmds):
+        if proxy and not proxy.isClientConnected():
+            await proxy.client.start()
         ret = await asyncio.gather(*[asyncio.create_task(cmd) for cmd in cmds], 
                                 return_exceptions=True)
-        if client:
-            await client.stop()
+        if proxy:
+            await proxy.client.stop()
 
         for r in ret:
             if isinstance(r, Exception):
@@ -248,13 +268,13 @@ def invoke(*cmds):
     first_coro = cmds[0]
     assert(iscoroutine(first_coro))
 
-    client = getcoroutinelocals(first_coro)['self'].client
-    loop = client.loop
+    proxy = getcoroutinelocals(first_coro)['self']
+    loop = proxy.client.loop
     
     if loop.is_running():
         return invoke_now(None, *cmds)
     else:
-        return loop.run_until_complete(invoke_now(client, *cmds))
+        return loop.run_until_complete(invoke_now(proxy, *cmds))
 
 
 def unpack(ret, *keys):
