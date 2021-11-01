@@ -11,6 +11,8 @@ import asyncio
 from contextlib import suppress
 
 from clu.actor import AMQPActor
+
+from cluplus import __version__
 from cluplus.configloader import Loader
 
 from .commands import command_parser as proto_command_parser
@@ -30,7 +32,7 @@ class ProtoActor(AMQPActor):
             *args,
             **kwargs
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, version=__version__, **kwargs)
         
         self.schema = {
                         "type": "object",

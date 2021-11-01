@@ -175,12 +175,23 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
             return False
         return not self.client.connection.connection.is_closed
 
-    async def _sync_call_command(self, command, *args, **kwargs):
+    async def _sync_call_command(self,
+                                 command,
+                                 *args,
+                                 callback: Optional[Callable[[AMQPReply], None]] = None,
+                                 **kwargs):
+
         if not self.isClientConnected():
             await self.client.start()
-        ret = await self.call_command(command,
-                                      *args,
-                                      **kwargs)
+
+        try:
+            ret = await self.call_command(command,
+                                        *args,
+                                        callback=callback,
+                                        **kwargs)
+        except Exception as ex:
+            await self.client.stop()
+            raise ex
         await self.client.stop()
         return ret
 
@@ -213,10 +224,10 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
                                         for k, v in kwargs.items()))
         
         future = await self.client.send_command(self.actor,
-                                                 command,
-                                                 *args,
-                                                 callback=callback,
-                                                 *opts)
+                                                command,
+                                                *args,
+                                                callback=callback,
+                                                *opts)
 
         ret = await future
 
@@ -251,17 +262,20 @@ def invoke(*cmds):
     On error it throws an exception if one of the commands fails as a dict
     with an exception and return values for every command.
     """
-    async def invoke_now(proxy, *cmds):
+    async def invoke_now(proxy, *cmds, return_exceptions=False):
         if proxy and not proxy.isClientConnected():
             await proxy.client.start()
+        
         ret = await asyncio.gather(*[asyncio.create_task(cmd) for cmd in cmds], 
-                                return_exceptions=True)
+                                   return_exceptions=True)
+
         if proxy:
             await proxy.client.stop()
 
-        for r in ret:
-            if isinstance(r, Exception):
-                raise ProxyPartialInvokeException(ret)
+        if not return_exceptions:
+            for r in ret:
+                if isinstance(r, Exception):
+                    raise ProxyPartialInvokeException(*ret)
         return ret
 
 

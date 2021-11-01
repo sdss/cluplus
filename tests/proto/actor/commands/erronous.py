@@ -11,7 +11,6 @@ from __future__ import annotations
 import click
 from clu.command import Command
 
-#from . import command_parser
 from clu.parsers.click import command_parser
 
 from ..exceptions import ProtoActorAPIError

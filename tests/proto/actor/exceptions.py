@@ -15,33 +15,17 @@ from __future__ import absolute_import, division, print_function
 class ProtoActorError(Exception):
     """A custom core ProtoActor exception"""
 
-    def __init__(self, message=None):
-
-        message = "There has been an error" if not message else message
-
-        super(ProtoActorError, self).__init__(message)
-
+    pass
 
 class ProtoActorNotImplemented(ProtoActorError):
     """A custom exception for not yet implemented features."""
 
-    def __init__(self, message=None):
-
-        message = "This feature is not implemented yet." if not message else message
-
-        super(ProtoActorNotImplemented, self).__init__(message)
-
+    pass
 
 class ProtoActorAPIError(ProtoActorError):
     """A custom exception for API errors"""
 
-    def __init__(self, message=None):
-        if not message:
-            message = "Error with Http Response from ProtoActor API"
-        else:
-            message = "Http response error from ProtoActor API. {0}".format(message)
-
-        super(ProtoActorAPIError, self).__init__(message)
+    pass
 
 
 class ProtoActorApiAuthError(ProtoActorAPIError):
@@ -59,6 +43,7 @@ class ProtoActorMissingDependency(ProtoActorError):
 class ProtoActorWarning(Warning):
     """Base warning for ProtoActor."""
 
+    pass
 
 class ProtoActorUserWarning(UserWarning, ProtoActorWarning):
     """The primary warning class."""
