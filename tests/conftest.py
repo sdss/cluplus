@@ -16,7 +16,6 @@ import pathlib
 
 import pytest
 
-#from clu import AMQPActor, AMQPClient, JSONActor
 from proto.actor.actor import ProtoActor
 
 
