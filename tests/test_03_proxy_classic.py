@@ -117,7 +117,6 @@ def test_proxy_classic_exception_single_command(proto_test_actor):
 
     except Exception as ex:
         assert(isinstance(ex, ProtoActorAPIError))
-        print("done")
         return
 
     pytest.fail("... should not have reached this point")
