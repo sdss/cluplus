@@ -42,8 +42,6 @@ bright = np.rec.array([(1,'Sirius', -1.45, 'A1V'),
                        names='order,name,mag,Sp')
 
 ret = bigData(bright)
-
-
 '''
 
 from __future__ import annotations
@@ -51,20 +49,9 @@ from __future__ import annotations
 import click
 from clu.command import Command
 from clu.parsers.click import command_parser
+from cluplus.parsers.json import JsonPickleParamType, pickle, unpickle
 
 import numpy as np
-import jsonpickle
-
-from functools import reduce
-
-class JsonPickleParamType(click.ParamType):
-    name = "jsonpickle"
-
-    def convert(self, value, param, ctx):
-        try:
-            return jsonpickle.decode(value)
-        except ValueError:
-            self.fail(f"{value!r} is not a valid jsonpickle", param, ctx)
 
 
 @command_parser.command("bigData")
@@ -72,12 +59,19 @@ class JsonPickleParamType(click.ParamType):
 async def bigData(command: Command, data):
     """Returns the status of the outlets."""
 
-    command.info(text=f"Data: {type(data)} {data}")
-    
-    #pickled = jsonpickle.encode(data, make_refs=False)
-    #print(pickled)
-    #command.info(data=pickled)
-        
+    return command.finish(data=pickle(data))
+
+
+@command_parser.command("moreBigData")
+@click.argument("data1", type=JsonPickleParamType())
+@click.argument("data2", type=JsonPickleParamType())
+@click.argument("ival", type=int)
+@click.option("--optData", type=JsonPickleParamType(), default=None)
+async def moreBigData(command: Command, data1, data2, ival:int, optdata):
+    """Returns the status of the outlets."""
+
+
     return command.finish()
+
 
 

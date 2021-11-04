@@ -11,8 +11,7 @@ more information.
 """
 
 import asyncio
-import os
-import pathlib
+import uuid
 
 import pytest
 
@@ -22,7 +21,7 @@ from proto.actor.actor import ProtoActor
 @pytest.fixture
 async def proto_test_actor(event_loop):
 
-    actor = ProtoActor(name="proto_test")
+    actor = ProtoActor(name=f"proto_test-{uuid.uuid4().hex[:8]}")
     await actor.start()
    
     yield actor

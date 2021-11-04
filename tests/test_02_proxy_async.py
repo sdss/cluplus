@@ -6,13 +6,11 @@
 # @Filename: proto_proxy.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
+import pytest
 import asyncio
 import logging
+import uuid
 from time import sleep
-
-import asyncio
-
-import pytest
 
 from clu import AMQPClient, CommandStatus
 
@@ -23,7 +21,7 @@ from cluplus.proxy import Proxy, invoke, unpack
 @pytest.fixture
 async def amqp_client(proto_test_actor, event_loop):
 
-    client = AMQPClient(name=f"{proto_test_actor.name}_client")
+    client = AMQPClient(name=f"{proto_test_actor.name}_client-{uuid.uuid4().hex[:8]}")
     await client.start()
 
     yield client
