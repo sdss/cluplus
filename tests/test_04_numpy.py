@@ -88,7 +88,7 @@ async def test_proxy_json_numpy_array(amqp_client, proto_test_actor):
     proto_proxy = Proxy(amqp_client, proto_test_actor.name)
     await proto_proxy.start()
 
-    arr = np.vander(np.linspace(0, 1, 12000), 2)
+    arr = np.vander(np.linspace(0, 1, 1200), 2)
     a = pickle(arr)
     arr_copy = unpickle(a)
     assert((arr == arr_copy).all())
