@@ -80,3 +80,23 @@ async def test_proxy_json_multiple(amqp_client, proto_test_actor):
     
     except Exception as ex:
         raise Exception(f"Something went wrong: {ex}")
+
+
+@pytest.mark.asyncio
+async def test_proxy_json_numpy_array(amqp_client, proto_test_actor):
+
+    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
+    await proto_proxy.start()
+
+    arr = np.vander(np.linspace(0, 1, 12000), 2)
+    a = pickle(arr)
+    arr_copy = unpickle(a)
+    assert((arr == arr_copy).all())
+
+    try:
+        arr_ret = unpickle(unpack(await proto_proxy.bigData(pickle(arr))))
+        assert((arr == arr_ret).all())
+    
+    except Exception as ex:
+        raise Exception(f"Something went wrong: {ex}")
+
