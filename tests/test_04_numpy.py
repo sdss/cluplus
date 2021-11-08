@@ -15,7 +15,7 @@ from clu import AMQPClient, CommandStatus
 
 from cluplus import __version__
 from cluplus.proxy import Proxy, invoke, unpack
-from cluplus.parsers.json import pickle, unpickle
+from cluplus.parsers.json import pickle, unpickle, JsonPickleParamType
 
 from proto.actor.actor import ProtoActor
 
@@ -34,6 +34,20 @@ async def amqp_client(proto_test_actor, event_loop):
     await client.stop()
 
 
+def test_proxy_json_paramtype():
+
+    import click
+    
+    bright = np.rec.array([(1,'Sirius', -1.45, 'A1V'),
+                        (2,'Canopus', -0.73, 'F0Ib'),
+                        (3,'Rigil Kent', -0.1, 'G2V')],
+                        formats='int16,a20,float32,a10',
+                        names='order,name,mag,Sp')
+
+    j = JsonPickleParamType()
+    j.convert(pickle(bright)[1:-1], None, None)
+
+
 @pytest.mark.asyncio
 async def test_proxy_json_simple(amqp_client, proto_test_actor):
 
@@ -45,7 +59,6 @@ async def test_proxy_json_simple(amqp_client, proto_test_actor):
                         (3,'Rigil Kent', -0.1, 'G2V')],
                         formats='int16,a20,float32,a10',
                         names='order,name,mag,Sp')
-
 
     a = pickle(bright)
     bright_copy = unpickle(a)

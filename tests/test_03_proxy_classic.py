@@ -142,3 +142,15 @@ def test_proxy_classic_exception_multiple_invoke(proto_test_actor):
         return
 
     pytest.fail("... should not have reached this point")
+
+
+def test_proxy_classic_single_callback(proto_test_actor):
+
+    amqp_client = AMQPClient(name=f"{proto_test_actor.name}_client")
+    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
+    proto_proxy.start()
+    
+    assert(len(proto_proxy.foo()["help"]) > 0)
+
+
+

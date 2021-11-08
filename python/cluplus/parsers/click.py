@@ -26,9 +26,9 @@ def __commands(ctx, command: Command):
     command.finish(help=[k for k in ctx.command.commands.keys() if k[:2] != '__'])
 
 
-@command_parser.command(name='__exthelp')
+@command_parser.command(name='foo')
 @click.pass_context
-def __exthelp(ctx, command: Command):
+def foo(ctx, command: Command):
     """Returns all commands."""
 
     message = []
