@@ -2,7 +2,7 @@
 
 ![Versions](https://img.shields.io/badge/python->3.7-blue)
 [![Documentation Status](https://readthedocs.org/projects/sdss-cluplus/badge/?version=latest)](https://sdss-cluplus.readthedocs.io/en/latest/?badge=latest)
-[![Travis (.org)](https://img.shields.io/travis/wasndas/cluplus)](https://travis-ci.org/wasndas/cluplus)
+[![Test](https://github.com/wasndas/cluplus/actions/workflows/test.yml/badge.svg)](https://github.com/wasndas/cluplus/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/wasndas/cluplus/branch/main/graph/badge.svg)](https://codecov.io/gh/wasndas/cluplus)
 
 ## Features
