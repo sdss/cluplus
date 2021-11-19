@@ -1,20 +1,22 @@
 
-`CLU+ `__
+CLU+
 ==========================================
 
-|py| |pypi| |black| |Build Status| |docs| |Coverage Status|
+|py| |pypi| |Build Status| |docs| |Coverage Status|
 
+``CLU+`` adds some enhancements to sdss-clu
 
 Features
 --------
-
 - RPC/Corba/Zeroc Ice style actor communications
+- asyncio & classic python usage
+- complex data with json-pickle
 - Recursive config file loading
 
 Installation
 ------------
 
-``CLU#`` can be installed using ``pip`` as
+``CLU+`` can be installed using ``pip`` as
 
 .. code-block:: console
 
@@ -29,41 +31,17 @@ or from source
     pip install .
 
 
-Development
-^^^^^^^^^^^
-
-``cluplus`` uses `poetry <http://poetry.eustace.io/>`__ for dependency management and packaging. To work with an editable install it's recommended that you setup ``poetry`` and install ``cluplus`` in a virtual environment by doing
-
-.. code-block:: console
-
-    poetry install
-
-
-Quick start
------------
-
-Creating a new actor with ``CLU`` is easy. To instantiate and run an actor you can simply do
-
-.. code-block:: python
-
-    import asyncio
-    from clu import AMQPActor
-
-    async def main(loop):
-        actor = await Actor('my_actor').start()
-        await actor.run_forever()
-
-    asyncio.run(main(loop))
+Next, head to the `Getting started <https://github.com/wasndas/cluplus/wiki>`__ section for more information about using clu+. All the examples are available `here <https://github.com/wasndas/cluplus/wiki/Examples>`__.
 
 
 
-.. |Build Status| image:: https://img.shields.io/github/workflow/status/sdss/cluplus/Test
+.. |Build Status| image:: https://img.shields.io/github/workflow/status/wasndas/cluplus/Test
     :alt: Build Status
-    :target: https://github.com/sdss/cluplus/actions
+    :target: https://github.com/wasndas/cluplus/actions
 
-.. |Coverage Status| image:: https://codecov.io/gh/sdss/cluplus/branch/main/graph/badge.svg
+.. |Coverage Status| image:: https://codecov.io/gh/wasndas/cluplus/branch/master/graph/badge.svg?token=i5SpR0OjLe
     :alt: Coverage Status
-    :target: https://codecov.io/gh/sdss/cluplus
+    :target: https://codecov.io/gh/wasndas/cluplus
 
 .. |py| image:: https://img.shields.io/badge/python-3.7%20|%203.8%20|%203.9-blue
     :alt: Python Versions
@@ -79,5 +57,3 @@ Creating a new actor with ``CLU`` is easy. To instantiate and run an actor you c
 
 .. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
-
-
