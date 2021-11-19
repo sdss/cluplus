@@ -31,7 +31,7 @@ or from source
     pip install .
 
 
-Next, head to the `Getting started <https://github.com/wasndas/cluplus/wiki>`__ section for more information about using clu+. More examples are available `here <https://github.com/wasndas/cluplus/wiki>`__.
+Next, head to the `Getting started <https://github.com/wasndas/cluplus/wiki>`__ section for more information about using clu+. All the examples are available `here <https://github.com/wasndas/cluplus/wiki/Examples>`__.
 
 
 
