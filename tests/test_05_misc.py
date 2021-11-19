@@ -36,7 +36,7 @@ def test_proxy_null_unpack():
     assert(unpack({}) == None)
 
     
-def test_proxy_null_unpack():
+def test_proxy_single_unpack():
 
     data = {'a': 1, 'b': 2, 'c': 3, 'd': 4}
 
@@ -53,3 +53,19 @@ def test_proxy_null_unpack():
     a, c = unpack(data, 'a', 'c')
     assert(a == 1)
     assert(c == 3)
+
+
+def test_proxy_mult_unpack():
+
+    data = [{'a': 1, 'b': 2}, {'c': 3, 'd': 4}]
+
+    a, b, c, d = unpack(data)
+    assert(a == 1)
+    assert(b == 2)
+    assert(c == 3)
+    assert(d == 4)
+    
+    a, c = unpack(data, 'a', 'c')
+    assert(a == 1)
+    assert(c == 3)
+

@@ -12,10 +12,6 @@ import os
 import click
 from clu.parsers.click import command_parser
 
-#import inspect
-
-#def props(cls):   
-  #return [i for i in cls.__dict__.keys() if i[:1] != '_']
 
 @command_parser.command(name='__commands')
 @click.pass_context
