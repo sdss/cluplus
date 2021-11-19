@@ -1,20 +1,20 @@
 
-`CLU+ `__
+CLU+
 ==========================================
 
-|py| |pypi| |black| |Build Status| |docs| |Coverage Status|
+|py| |pypi| |Build Status| |docs| |Coverage Status|
 
+``CLU+`` adds some enhancements to sdss-clu
 
 Features
 --------
-
 - RPC/Corba/Zeroc Ice style actor communications
 - Recursive config file loading
 
 Installation
 ------------
 
-``CLU#`` can be installed using ``pip`` as
+``CLU+`` can be installed using ``pip`` as
 
 .. code-block:: console
 
