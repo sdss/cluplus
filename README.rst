@@ -31,6 +31,10 @@ or from source
     pip install .
 
 
+Next, head to the `Getting started <https://github.com/wasndas/cluplus/wiki>`__ section for more information about using clu+. More examples are available `here <https://github.com/wasndas/cluplus/wiki>`__.
+
+
+
 .. |Build Status| image:: https://img.shields.io/github/workflow/status/wasndas/cluplus/Test
     :alt: Build Status
     :target: https://github.com/wasndas/cluplus/actions
