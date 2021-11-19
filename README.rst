@@ -9,6 +9,8 @@ CLU+
 Features
 --------
 - RPC/Corba/Zeroc Ice style actor communications
+- asyncio & classic python usage
+- complex data with json-pickle
 - Recursive config file loading
 
 Installation
@@ -61,7 +63,7 @@ Creating a new actor with ``CLU`` is easy. To instantiate and run an actor you c
     :alt: Build Status
     :target: https://github.com/wasndas/cluplus/actions
 
-.. |Coverage Status| image:: https://codecov.io/gh/wasndas/cluplus/branch/main/graph/badge.svg
+.. |Coverage Status| image:: https://codecov.io/gh/wasndas/cluplus/branch/master/graph/badge.svg?token=i5SpR0OjLe
     :alt: Coverage Status
     :target: https://codecov.io/gh/wasndas/cluplus
 
