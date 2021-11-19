@@ -62,7 +62,6 @@ sphinx-autobuild = "^2021.3.14"
 sphinx-bootstrap-theme = ">=0.8.0" 
 sphinx-markdown-builder = ">=0.5.4"
 numpy = ">=1.0"
-#distro = ">=1.6.0"
 
 [tool.isort]
 line_length = 79
