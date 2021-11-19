@@ -27,6 +27,7 @@ jobs:
                   body: ""
                   draft: false
                   prerelease: false
+                  allowUpdates: true
 
             - name: Set up Python
               uses: actions/setup-python@v2
