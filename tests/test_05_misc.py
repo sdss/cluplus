@@ -24,10 +24,17 @@ def test_proxy_string_to_exception():
     e = Proxy._stringToException("Unknown")
     assert(type(e) == Exception)
 
+    e = Proxy._stringToException("Unknown", "NOMODULE")
+    assert(type(e) == Exception)
+
+    e = Proxy._stringToException("Unknown", "NOMODULE", "WRONGTYPE")
+    assert(type(e) == Exception)
+
 
 def test_proxy_null_unpack():
 
     assert(unpack({}) == None)
+
     
 def test_proxy_null_unpack():
 
