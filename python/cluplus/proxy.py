@@ -328,7 +328,7 @@ def unpack(ret, *keys):
         return
     
     if isinstance(ret, list):
-        if len(keys) > 1:
+        if len(keys) > 0:
             return [d[i] for d in ret for i in keys if i in d]
         else:
             return [val for d in ret for val in list(d.values())]

@@ -57,15 +57,23 @@ def test_proxy_single_unpack():
 
 def test_proxy_mult_unpack():
 
-    data = [{'a': 1, 'b': 2}, {'c': 3, 'd': 4}]
+    data = [{'a': 1, 'b': 2, 'e': 7}, {'c': 3, 'd': 4, 'e': 8}]
 
-    a, b, c, d = unpack(data)
+    a, b, e1, c, d, e2  = unpack(data)
     assert(a == 1)
     assert(b == 2)
     assert(c == 3)
     assert(d == 4)
+    assert(e1 == 7)
+    assert(e2 == 8)
     
     a, c = unpack(data, 'a', 'c')
     assert(a == 1)
     assert(c == 3)
+
+    print(unpack(data, 'e'))
+
+    e1, e2 = unpack(data, 'e')
+    assert(e1 == 7)
+    assert(e2 == 8)
 
