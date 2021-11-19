@@ -1,12 +1,12 @@
+
+name: Create Release
+
 on:
   release:
     types: [published]
 
-name: Create Release
-
 jobs:
     build:
-
         runs-on: ubuntu-latest
 
         steps:
