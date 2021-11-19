@@ -2,8 +2,10 @@
 name: Create Release
 
 on:
-  release:
-    types: [published]
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+' # Exclude pre-releases
 
 jobs:
     build:
