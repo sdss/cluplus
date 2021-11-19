@@ -17,8 +17,12 @@ import pytest
 
 from proto.actor.actor import ProtoActor
 
+@pytest.fixture(scope="session")
+def event_loop():
+    return asyncio.get_event_loop()
 
-@pytest.fixture
+
+@pytest.fixture(scope="session")
 async def proto_test_actor(event_loop):
 
     actor = ProtoActor(name=f"proto_test-{uuid.uuid4().hex[:8]}")
@@ -27,3 +31,4 @@ async def proto_test_actor(event_loop):
     yield actor
 
     await actor.stop()
+

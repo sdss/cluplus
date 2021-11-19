@@ -3,10 +3,11 @@
 #
 # @Author: José Sánchez-Gallego (gallegoj@uw.edu)
 # @Date: 2020-08-26
-# @Filename: proto_proxy.py
+# @Filename: test_03_proxy_classic.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 import pytest
+import uuid
 
 import logging
 from time import sleep
@@ -19,83 +20,69 @@ from cluplus.proxy import Proxy, invoke, unpack
 from proto.actor.actor import ProtoActor
 
 
-def test_proxy_classic_single_basic(proto_test_actor):
+@pytest.fixture(scope="session")
+def classic_proto_proxy(proto_test_actor):
 
-    amqp_client = AMQPClient(name=f"{proto_test_actor.name}_client")
+    client = AMQPClient(name=f"{proto_test_actor.name}_client-{uuid.uuid4().hex[:8]}")
 
-    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
-    proto_proxy.start()
+    proxy = Proxy(client, proto_test_actor.name)
+    proxy.start()
 
-    assert (proto_proxy.ping() == {'text': 'Pong.'})
+    yield proxy
+
+
+def test_proxy_classic_single_basic(classic_proto_proxy):
+
+    assert (classic_proto_proxy.ping() == {'text': 'Pong.'})
     
-    assert (proto_proxy.setEnabled(True) == {'enable': True, 'axis0': True, 'axis1': True} )
+    assert (classic_proto_proxy.setEnabled(True) == {'enable': True, 'axis0': True, 'axis1': True} )
 
-    assert (proto_proxy.setEnabled(False, axis0=True) == {'enable': False, 'axis0': True, 'axis1': True} )
+    assert (classic_proto_proxy.setEnabled(False, axis0=True) == {'enable': False, 'axis0': True, 'axis1': True} )
 
 
-def test_proxy_classic_single_callback(proto_test_actor):
+def test_proxy_classic_single_callback(classic_proto_proxy):
 
-    amqp_client = AMQPClient(name=f"{proto_test_actor.name}_client")
-    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
-    proto_proxy.start()
-    
     def callback(reply): 
         amqp_client.log.debug(f"Reply: {CommandStatus.code_to_status(reply.message_code)} {reply.body}")
         if CommandStatus.code_to_status(reply.message_code) == CommandStatus.DONE:
              assert (reply.body == {'enable': True, 'axis0': True, 'axis1': True} )
     
-    assert (proto_proxy.setEnabled(True, callback=callback) == {'enable': True, 'axis0': True, 'axis1': True} )
+    assert (classic_proto_proxy.setEnabled(True, callback=callback) == {'enable': True, 'axis0': True, 'axis1': True} )
 
 
-def test_proxy_classic_single_unpack(proto_test_actor):
+def test_proxy_classic_single_unpack(classic_proto_proxy):
 
-    amqp_client = AMQPClient(name=f"{proto_test_actor.name}_client")
-    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
-    proto_proxy.start()
-    
-    assert (unpack(proto_proxy.ping()) == 'Pong.')
+    assert (unpack(classic_proto_proxy.ping()) == 'Pong.')
 
-    a, b, c = unpack(proto_proxy.setEnabled(False))
+    a, b, c = unpack(classic_proto_proxy.setEnabled(False))
     assert ([a, b, c] == [False, True, True])
 
 
-def test_proxy_classic_multiple_basic(proto_test_actor):
+def test_proxy_classic_multiple_basic(classic_proto_proxy):
 
-    amqp_client = AMQPClient(name=f"{proto_test_actor.name}_client")
-    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
-    proto_proxy.start()
-
-    rc = invoke(proto_proxy.async_setEnabled(True, axis0=True),
-                proto_proxy.async_gotoRaDecJ2000(10,20))
+    rc = invoke(classic_proto_proxy.async_setEnabled(True, axis0=True),
+                classic_proto_proxy.async_gotoRaDecJ2000(10,20))
     assert (rc == [{'enable': True, 'axis0': True, 'axis1': True}, {'ra_h': 10.0, 'deg_d': 20.0}])
 
 
-def test_proxy_classic_multiple_unpack(proto_test_actor):
+def test_proxy_classic_multiple_unpack(classic_proto_proxy):
 
-    amqp_client = AMQPClient(name=f"{proto_test_actor.name}_client")
-    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
-    proto_proxy.start()
-
-    rc = unpack(invoke(proto_proxy.async_setEnabled(True, axis0=True),
-                             proto_proxy.async_gotoRaDecJ2000(10,20)))
+    rc = unpack(invoke(classic_proto_proxy.async_setEnabled(True, axis0=True),
+                             classic_proto_proxy.async_gotoRaDecJ2000(10,20)))
     assert (rc == [True, True, True, 10.0, 20.0])
 
-    a, a0, a1, *c = unpack(invoke(proto_proxy.async_setEnabled(True, axis0=True),
-                                  proto_proxy.async_gotoRaDecJ2000(10,20)))
+    a, a0, a1, *c = unpack(invoke(classic_proto_proxy.async_setEnabled(True, axis0=True),
+                                  classic_proto_proxy.async_gotoRaDecJ2000(10,20)))
 
     assert ([a, a0, a1, c] == [True, True, True, [10.0, 20.0]])
 
 
 
-def test_proxy_classic_exception_single_command(proto_test_actor):
+def test_proxy_classic_exception_single_command(classic_proto_proxy):
 
     from proto.actor.exceptions import ProtoActorAPIError
     from pydoc import getdoc
     
-    amqp_client = AMQPClient(name=f"{proto_test_actor.name}_client")
-    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
-    proto_proxy.start()
-
     def callback(reply): 
 
         if CommandStatus.code_to_status(reply.message_code) == CommandStatus.RUNNING:
@@ -110,7 +97,7 @@ def test_proxy_classic_exception_single_command(proto_test_actor):
             pytest.fail(f"... returned wrong commandstatus: {CommandStatus.code_to_status(reply.message_code)}")
     
     try:
-        proto_proxy.errPassAsError(callback=callback)
+        classic_proto_proxy.errPassAsError(callback=callback)
 
     except Exception as ex:
         assert(isinstance(ex, ProtoActorAPIError))
@@ -119,19 +106,15 @@ def test_proxy_classic_exception_single_command(proto_test_actor):
     pytest.fail("... should not have reached this point")
 
 
-def test_proxy_classic_exception_multiple_invoke(proto_test_actor):
+def test_proxy_classic_exception_multiple_invoke(classic_proto_proxy):
 
-    amqp_client = AMQPClient(name=f"{proto_test_actor.name}_client")
     from cluplus.exceptions import ProxyPartialInvokeException
     from proto.actor.exceptions import ProtoActorAPIError
 
-    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
-    proto_proxy.start()
-
     try:
-        invoke(proto_proxy.async_ping(),
-                     proto_proxy.async_version(),
-                     proto_proxy.async_errPassAsError())
+        invoke(classic_proto_proxy.async_ping(),
+                     classic_proto_proxy.async_version(),
+                     classic_proto_proxy.async_errPassAsError())
 
     except ProxyPartialInvokeException as ex:
         assert(isinstance(ex, ProxyPartialInvokeException))
@@ -144,13 +127,9 @@ def test_proxy_classic_exception_multiple_invoke(proto_test_actor):
     pytest.fail("... should not have reached this point")
 
 
-def test_proxy_classic_single_callback(proto_test_actor):
+def test_proxy_classic_single_callback(classic_proto_proxy):
 
-    amqp_client = AMQPClient(name=f"{proto_test_actor.name}_client")
-    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
-    proto_proxy.start()
-    
-    assert(len(proto_proxy.foo()["help"]) > 0)
+    assert(len(classic_proto_proxy.foo()["help"]) > 0)
 
 
 
