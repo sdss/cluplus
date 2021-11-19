@@ -1,8 +1,6 @@
 on:
-    push:
-        # Sequence of patterns matched against refs/tags
-        tags:
-            types: [published]
+  release:
+    types: [published]
 
 name: Create Release
 
