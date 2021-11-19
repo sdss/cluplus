@@ -57,13 +57,13 @@ Creating a new actor with ``CLU`` is easy. To instantiate and run an actor you c
 
 
 
-.. |Build Status| image:: https://img.shields.io/github/workflow/status/sdss/cluplus/Test
+.. |Build Status| image:: https://img.shields.io/github/workflow/status/wasndas/cluplus/Test
     :alt: Build Status
-    :target: https://github.com/sdss/cluplus/actions
+    :target: https://github.com/wasndas/cluplus/actions
 
-.. |Coverage Status| image:: https://codecov.io/gh/sdss/cluplus/branch/main/graph/badge.svg
+.. |Coverage Status| image:: https://codecov.io/gh/wasndas/cluplus/branch/main/graph/badge.svg
     :alt: Coverage Status
-    :target: https://codecov.io/gh/sdss/cluplus
+    :target: https://codecov.io/gh/wasndas/cluplus
 
 .. |py| image:: https://img.shields.io/badge/python-3.7%20|%203.8%20|%203.9-blue
     :alt: Python Versions
@@ -79,5 +79,3 @@ Creating a new actor with ``CLU`` is easy. To instantiate and run an actor you c
 
 .. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
-
-
