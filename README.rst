@@ -31,34 +31,6 @@ or from source
     pip install .
 
 
-Development
-^^^^^^^^^^^
-
-``cluplus`` uses `poetry <http://poetry.eustace.io/>`__ for dependency management and packaging. To work with an editable install it's recommended that you setup ``poetry`` and install ``cluplus`` in a virtual environment by doing
-
-.. code-block:: console
-
-    poetry install
-
-
-Quick start
------------
-
-Creating a new actor with ``CLU`` is easy. To instantiate and run an actor you can simply do
-
-.. code-block:: python
-
-    import asyncio
-    from clu import AMQPActor
-
-    async def main(loop):
-        actor = await Actor('my_actor').start()
-        await actor.run_forever()
-
-    asyncio.run(main(loop))
-
-
-
 .. |Build Status| image:: https://img.shields.io/github/workflow/status/wasndas/cluplus/Test
     :alt: Build Status
     :target: https://github.com/wasndas/cluplus/actions
