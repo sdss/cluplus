@@ -71,8 +71,6 @@ def test_proxy_mult_unpack():
     assert(a == 1)
     assert(c == 3)
 
-    print(unpack(data, 'e'))
-
     e1, e2 = unpack(data, 'e')
     assert(e1 == 7)
     assert(e2 == 8)
