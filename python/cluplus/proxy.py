@@ -18,46 +18,8 @@ from clu import AMQPReply, BaseClient
 from .exceptions import ProxyPartialInvokeException
 
 
-class ProxyClient:
-    """A proxy representing an actor.
 
-    Parameters
-    ----------
-    client
-        The client used to command the actor.
-    actor
-        The actor to command.
-
-    """
-
-    def __init__(self, client: BaseClient, actor: str):
-
-        self.client = client
-        self.actor = actor
-
-    def send_command(self, *args,
-                     callback: Optional[Callable[[AMQPReply], None]] = None,):
-        """Sends a command to the actor.
-
-        Returns the result of calling the client ``send_command()`` method
-        with the actor and concatenated arguments as parameters. Note that
-        in some cases the client ``send_command()`` method may be a coroutine
-        function, in which case the returned coroutine needs to be awaited.
-
-        Parameters
-        ----------
-        args
-            Arguments to pass to the actor.
-            They will be concatenated using spaces.
-
-        """
-
-        command = " ".join(map(str, args))
-
-        return self.client.send_command(self.actor, command)
-
-
-class Proxy(ProxyClient):
+class Proxy():
     """A proxy client with actor commands.
 
 import uuid
@@ -140,16 +102,15 @@ async def start_async_setEnabled():
         await amqpc.stop()
 
 amqpc.loop.run_until_complete(start_async_setEnabled())
-
-
-
     """
     
-    __commands="__commands"
-    __comkey="help"
+    __commands = "__commands"
+    __comkey = "help"
     
     def __init__(self, client: BaseClient, actor: str):
-        super().__init__(client, actor)
+        self.client = client
+        self.actor = actor
+#        super().__init__(client, actor)
 
     def start(self):
         """Query and set actor commands."""
