@@ -9,8 +9,8 @@ CLU+
 Features
 --------
 - RPC/Corba/Zeroc Ice style actor communications
-- asyncio & classic python usage
-- complex data with json-pickle
+- Asyncio & classic python usage
+- Complex data with json-pickle
 - Recursive config file loading
 
 Installation
