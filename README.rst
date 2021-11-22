@@ -32,16 +32,16 @@ or from source
     pip install .
 
 
-Next, head to the `Getting started <https://github.com/wasndas/cluplus/wiki>`__ section for more information about using clu+.
+Next, head to the `Getting started <https://github.com/sdss/cluplus/wiki>`__ section for more information about using clu+.
 
 
-.. |Build Status| image:: https://img.shields.io/github/workflow/status/wasndas/cluplus/Test
+.. |Build Status| image:: https://img.shields.io/github/workflow/status/sdss/cluplus/Test
     :alt: Build Status
-    :target: https://github.com/wasndas/cluplus/actions
+    :target: https://github.com/sdss/cluplus/actions
 
-.. |Coverage Status| image:: https://codecov.io/gh/wasndas/cluplus/branch/master/graph/badge.svg?token=i5SpR0OjLe
+.. |Coverage Status| image:: https://codecov.io/gh/sdss/cluplus/branch/master/graph/badge.svg?token=i5SpR0OjLe
     :alt: Coverage Status
-    :target: https://codecov.io/gh/wasndas/cluplus
+    :target: https://codecov.io/gh/sdss/cluplus
 
 .. |py| image:: https://img.shields.io/badge/python-3.7%20|%203.8%20|%203.9-blue
     :alt: Python Versions
