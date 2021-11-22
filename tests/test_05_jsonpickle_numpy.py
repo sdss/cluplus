@@ -15,10 +15,9 @@ from clu import AMQPClient, CommandStatus
 
 from cluplus import __version__
 from cluplus.proxy import Proxy, invoke, unpack
-from cluplus.parsers.json import pickle, unpickle, JsonPickleParamType
+from cluplus.parsers.jsonpickle import pickle, unpickle, JsonPickleParamType
 
 from proto.actor.actor import ProtoActor
-
 
 import numpy as np
 

@@ -22,6 +22,7 @@ class JsonStringParamType(click.ParamType):
 
     def convert(self, value, param, ctx):
         try:
-            return jsonpickle.decode(value)
+            return json.loads(value)
+        
         except ValueError:
             self.fail(f"{value!r} is not a valid json string", param, ctx)

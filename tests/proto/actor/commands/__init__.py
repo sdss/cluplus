@@ -10,5 +10,6 @@ command_parser.add_command(__commands)
 command_parser.add_command(foo)
 
 from . import complex_data_with_jsonpickle
+from . import complex_data_with_jsonstring
 from . import erronous
 from . import multioptsargs

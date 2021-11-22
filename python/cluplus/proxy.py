@@ -11,7 +11,9 @@ import sys
 from functools import partial
 from itertools import chain
 from typing import Callable, Optional
-from enum import Enum
+
+import json
+
 from inspect import getcoroutinelocals, iscoroutine
 from clu import AMQPReply, BaseClient
 
@@ -181,14 +183,18 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
                            callback: Optional[Callable[[AMQPReply], None]] = None,
                            **kwargs):
 
-        opts = list(chain.from_iterable(('--' + k, v)
+        def encode(v):
+            if isinstance(v, (int, float, str, bool)): return v
+            return f"'{json.dumps(v)}'"
+
+        args = [encode(v) for v in args] \
+             + list(chain.from_iterable(('--' + k, encode(v))
                                         for k, v in kwargs.items()))
-        
+
         future = await self.client.send_command(self.actor,
                                                 command,
                                                 *args,
-                                                callback=callback,
-                                                *opts)
+                                                callback=callback)
 
         ret = await future
 
@@ -198,10 +204,13 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
         return ret.replies[-1].body
 
     @staticmethod
-    def _errorMapToException(em: dict):
-        return Proxy._stringToException(em['exception_message'],
-                                        em['exception_type'],
-                                        em['exception_module'])
+    def _errorMapToException(em):
+        if isinstance(em, dict):
+            return Proxy._stringToException(em['exception_message'],
+                                            em['exception_type'],
+                                            em['exception_module'])
+        return Exception(em)
+
 
     @staticmethod
     def _stringToException(sval, tn='Exception', mn='builtins'):

@@ -49,7 +49,7 @@ from __future__ import annotations
 import click
 from clu.command import Command
 from clu.parsers.click import command_parser
-from cluplus.parsers.json import JsonPickleParamType, pickle, unpickle
+from cluplus.parsers.jsonpickle import JsonPickleParamType, pickle, unpickle
 
 import numpy as np
 
