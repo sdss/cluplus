@@ -1,10 +1,10 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # @Author: Florian Briegel (briegel@mpia.de)
 # @Date: 2021-11-19
-# @Filename: test_04_numpy.py
+# @Filename: test_05_jsonpickle_numpy.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
+
 
 import pytest
 import asyncio

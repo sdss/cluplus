@@ -1,6 +1,10 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 #
-# test_main.py
+# @Author: Florian Briegel (briegel@mpia.de)
+# @Date: 2021-11-19
+# @Filename: test_01_configloader.py
+# @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
+
 
 import os
 import pytest

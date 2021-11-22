@@ -19,6 +19,32 @@ from cluplus.parsers.jsonstring import JsonStringParamType
 import numpy as np
 
 
+list_data = [1,2,3,4.0,5]
+dict_data = {'a"': 10, "b": 20}
+mixed_data = ["Hello there", 'Rigil Kent', 'C', 3, 0.815, {'D': 4711, 'e': "88"}]
+
+
+@command_parser.command("sendData")
+@click.argument("listdata", type=JsonStringParamType())
+@click.argument("dictdata", type=JsonStringParamType())
+@click.argument("mixeddata", type=JsonStringParamType())
+async def sendData(command: Command, listdata, dictdata, mixeddata):
+
+    if list_data != listdata: 
+        command.fail(error=Exception("list data didnt work"))
+        return
+    
+    if dict_data != dictdata: 
+        command.fail(error=Exception("dict data didnt work"))
+        return
+
+    if mixed_data != mixeddata: 
+        command.fail(error=Exception("mixed data didnt work"))
+        return
+
+    command.finish()
+
+
 fits_dict = { \
 'WCSAXES': [                    2, "number of World Coordinate System axes"], \
 'CRPIX1': [               535.384, "x-coordinate of reference pixel"], \
@@ -42,8 +68,6 @@ fits_dict = { \
 'CUNIT1': [  'angstrom'          , "units of first coordinate value"], \
 'CUNIT2': [  'deg     '          , "units of second coordinate value"] \
 }
-
-
 
 
 @command_parser.command("fitsStyleData")

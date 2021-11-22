@@ -1,10 +1,10 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# @Author: José Sánchez-Gallego (gallegoj@uw.edu)
-# @Date: 2020-08-26
+# @Author: Florian Briegel (briegel@mpia.de)
+# @Date: 2021-11-19
 # @Filename: test_03_proxy_classic.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
+
 
 import pytest
 import uuid
