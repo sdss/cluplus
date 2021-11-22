@@ -67,6 +67,20 @@ async def test_proxy_json_fits(amqp_client, proto_test_actor):
 
 
 @pytest.mark.asyncio
+async def test_proxy_json_fits_with_opt(amqp_client, proto_test_actor):
+
+    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
+    await proto_proxy.start()
+    
+    try:
+        await proto_proxy.fitsStyleData(fits_dict, optData=[fits_dict, 4711, "Hello world"])
+        return
+    
+    except Exception as ex:
+        pytest.fail("... should not have reached this point: {ex}" )
+
+
+@pytest.mark.asyncio
 async def test_proxy_json_bogus(amqp_client, proto_test_actor):
     ''' clu doesnt handle click parser errors coreectly'''
 

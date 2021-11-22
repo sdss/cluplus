@@ -48,11 +48,18 @@ fits_dict = { \
 
 @command_parser.command("fitsStyleData")
 @click.argument("data", type=JsonStringParamType())
-async def fitsStyleData(command: Command, data):
+@click.option("--optData", type=JsonStringParamType(), default=None)
+async def fitsStyleData(command: Command, data, optdata):
 
-    if fits_dict != data: command.fail(error=Exception("that didnt work"))
+    if fits_dict != data: 
+        command.fail(error=Exception("that didnt work"))
+        return
     
-    return command.finish()
+    if optdata and fits_dict != optdata[0]: 
+        command.fail(error=Exception("that didnt work"))
+        return
+
+    command.finish()
 
 
 
