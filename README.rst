@@ -10,7 +10,8 @@ Features
 --------
 - RPC/Corba/Zeroc Ice style actor communications
 - Asyncio & classic python usage
-- Complex data with json-pickle
+- Complex data transfer with json
+- Alternative data handling with json-pickle, eg: numpy
 - Recursive config file loading
 
 Installation
