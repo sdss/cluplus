@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "sdss-cluplus"
-version = "0.0.3"
+version = "0.0.4"
 description = "Additional functionality for sdss-clu"
 authors = ["Florian Briegel <briegel@mpia.de>"]
 license = "BSD-3-Clause"
 readme = "README.rst"
-homepage = "https://github.com/wasndas/cluplus"
-repository = "https://github.com/wasndas/cluplus"
+homepage = "https://github.com/sdss/cluplus"
+repository = "https://github.com/sdss/cluplus"
 documentation = "https://sdss-cluplus.readthedocs.org"
 keywords = ["astronomy", "software"]
 classifiers = [
