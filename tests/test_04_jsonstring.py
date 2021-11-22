@@ -71,8 +71,6 @@ async def test_proxy_json_list_and_dict(amqp_client, proto_test_actor):
     proto_proxy = Proxy(amqp_client, proto_test_actor.name)
     await proto_proxy.start()
     
-    print(mixed_data)
-    
     try:
         await proto_proxy.sendData(list_data, dict_data, mixed_data)
         return
@@ -81,47 +79,47 @@ async def test_proxy_json_list_and_dict(amqp_client, proto_test_actor):
         pytest.fail("... should not have reached this point: {ex}" )
 
 
-#@pytest.mark.asyncio
-#async def test_proxy_json_fits(amqp_client, proto_test_actor):
+@pytest.mark.asyncio
+async def test_proxy_json_fits(amqp_client, proto_test_actor):
 
-    #proto_proxy = Proxy(amqp_client, proto_test_actor.name)
-    #await proto_proxy.start()
+    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
+    await proto_proxy.start()
     
-    #try:
-        #await proto_proxy.fitsStyleData(fits_dict)
-        #return
+    try:
+        await proto_proxy.fitsStyleData(fits_dict)
+        return
     
-    #except Exception as ex:
-        #pytest.fail("... should not have reached this point: {ex}" )
+    except Exception as ex:
+        pytest.fail("... should not have reached this point: {ex}" )
 
 
-#@pytest.mark.asyncio
-#async def test_proxy_json_fits_with_opt(amqp_client, proto_test_actor):
+@pytest.mark.asyncio
+async def test_proxy_json_fits_with_opt(amqp_client, proto_test_actor):
 
-    #proto_proxy = Proxy(amqp_client, proto_test_actor.name)
-    #await proto_proxy.start()
+    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
+    await proto_proxy.start()
     
-    #try:
-        #await proto_proxy.fitsStyleData(fits_dict, optData=[fits_dict, 4711, "Hello world"])
-        #return
+    try:
+        await proto_proxy.fitsStyleData(fits_dict, optData=[fits_dict, 4711, "Hello world"])
+        return
     
-    #except Exception as ex:
-        #pytest.fail("... should not have reached this point: {ex}" )
+    except Exception as ex:
+        pytest.fail("... should not have reached this point: {ex}" )
 
 
-#@pytest.mark.asyncio
-#async def test_proxy_json_bogus(amqp_client, proto_test_actor):
-    #''' clu doesnt handle click parser errors coreectly'''
+@pytest.mark.asyncio
+async def test_proxy_json_bogus(amqp_client, proto_test_actor):
+    ''' clu doesnt handle click parser errors coreectly'''
 
 
-    #proto_proxy = Proxy(amqp_client, proto_test_actor.name)
-    #await proto_proxy.start()
+    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
+    await proto_proxy.start()
     
-    #try:
-        #await proto_proxy.fitsStyleData("bogus data")
+    try:
+        await proto_proxy.fitsStyleData("bogus data")
     
-    #except Exception as ex:
-        #return
+    except Exception as ex:
+        return
 
-    #pytest.fail("... should not have reached this point")
+    pytest.fail("... should not have reached this point")
 

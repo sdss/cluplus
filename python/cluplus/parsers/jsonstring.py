@@ -21,8 +21,6 @@ class JsonStringParamType(click.ParamType):
     name = "jsonstring"
 
     def convert(self, value, param, ctx):
-        print(value)
-        print(param)
         try:
             return json.loads(value)
         
