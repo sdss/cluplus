@@ -7,7 +7,7 @@ from setuptools import find_packages, setup
 module = toml.load("pyproject.toml")
 module_tool_poetry = module["tool"]["poetry"]
 module_name = module_tool_poetry["name"]
-
+print(module_name)
 module_package_from = module_tool_poetry["packages"][0]["from"]
 
 module_package_include = module_tool_poetry["include"]
@@ -26,6 +26,8 @@ module_devel_requires = [
     else k + v["version"].replace("^", "!=").replace("*", "")
     for (k, v) in module_tool_poetry["dev-dependencies"].items()
 ]
+
+
 setup(
     name=module_name,
     version=module_tool_poetry["version"],
@@ -37,7 +39,8 @@ setup(
     platforms="all",
     classifiers=module_tool_poetry["classifiers"],
     package_dir={"": module_package_from},
-    packages=find_packages(module_package_from),
+    packages=[module_tool_poetry["packages"][0]["include"]],
+    include_package_data=True,
     package_data={"": module_package_include},
     keywords=", ".join(module_tool_poetry["keywords"]),
     python_requires=">=3.7, <4",
