@@ -35,11 +35,13 @@ jobs:
 
             - name: Install dependencies
               run: |
-                python -m pip install --upgrade pip toml setuptools wheel twine
+                # python -m pip install --upgrade pip toml setuptools wheel twine
+                python -m pip install --upgrade pip toml setuptools wheel twine build
 
             - name: Build package
               run: |
-                python setup.py sdist
+                # python setup.py sdist
+                python -m build
 
             - name: Publish to PyPI
               uses: pypa/gh-action-pypi-publish@master
