@@ -7,7 +7,7 @@ from setuptools import find_packages, setup
 module = toml.load("pyproject.toml")
 module_tool_poetry = module["tool"]["poetry"]
 module_name = module_tool_poetry["name"]
-print(module_name)
+
 module_package_from = module_tool_poetry["packages"][0]["from"]
 
 module_package_include = module_tool_poetry["include"]
