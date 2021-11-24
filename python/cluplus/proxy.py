@@ -115,6 +115,7 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
     def __init__(self, client: BaseClient, actor: str):
         self.client = client
         self.actor = actor
+        self.async_mode = True
 #        super().__init__(client, actor)
 
     def start(self):
@@ -124,6 +125,7 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
             for c in commands:
                 setattr(self, c, partial(self._hybrid_call_command, c))
                 setattr(self, f"async_{c}", partial(self.call_command, c))
+                setattr(self, f"nowait_{c}", partial(self.call_command, c, nowait=True))
             
         async def start_async():
             commands = (await self.call_command(Proxy.__commands))[Proxy.__comkey]
@@ -132,6 +134,7 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
         if self.client.loop.is_running():
             return start_async()
         else:
+            self.async_mode = False
             coro = self._sync_call_command(Proxy.__commands)
             commands = self.client.loop.run_until_complete(coro)[Proxy.__comkey]
             set_commands(commands)
@@ -166,13 +169,14 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
     def _hybrid_call_command(self,
                              command,
                              *args,
-                             async_mode=False,
+                             nowait:Bool = False,
                              callback: Optional[Callable[[AMQPReply], None]] = None,
                              **kwargs):
 
-        if self.client.loop.is_running() or async_mode:
+        if self.async_mode:
             return self.call_command(command,
                                      *args,
+                                     nowait=nowait,
                                      callback=callback,
                                      **kwargs)
         else:
@@ -186,6 +190,7 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
                            command: str,
                            *args,
                            callback: Optional[Callable[[AMQPReply], None]] = None,
+                           nowait:Bool = False,
                            **kwargs):
 
         def encode(v):
@@ -196,17 +201,22 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
              + list(chain.from_iterable(('--' + k, encode(v))
                                         for k, v in kwargs.items()))
 
-        future = await self.client.send_command(self.actor,
+        fu = await self.client.send_command(self.actor,
                                                 command,
                                                 *args,
                                                 callback=callback)
+        
+        if nowait: return fu
 
-        ret = await future
+        ret = await fu
 
         if hasattr(ret, "status") and ret.status.did_fail:
             raise self._errorMapToException(ret.replies[-1].body['error'])
 
         return ret.replies[-1].body
+
+
+
 
     @staticmethod
     def _errorMapToException(em):

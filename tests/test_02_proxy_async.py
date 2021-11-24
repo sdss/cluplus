@@ -124,3 +124,18 @@ async def test_proxy_async_exception_multiple_invoke(async_proto_proxy):
         return
 
     pytest.fail("... should not have reached this point")
+
+@pytest.mark.asyncio
+async def test_proxy_async_multiple_nowait(async_proto_proxy):
+
+    fu1 = await async_proto_proxy.async_setEnabled(True, nowait=True)
+    fu2 = await async_proto_proxy.nowait_gotoRaDecJ2000(10,20)
+
+    rc1 = await fu1
+    rc2 = await fu2
+    
+    a, a0, a1, *c = unpack([rc1.replies[-1].body, rc2.replies[-1].body])
+
+    assert ([a, a0, a1, c] == [True, True, True, [10.0, 20.0]])
+
+

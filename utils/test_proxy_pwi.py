@@ -9,6 +9,8 @@ import asyncio
 import sys
 import uuid
 
+from logging import DEBUG
+
 from clu import AMQPClient, CommandStatus
 from test_lvm_actors import LVM
 
@@ -33,7 +35,7 @@ def callback(reply):
     amqpc.log.warning(f"{CommandStatus.code_to_status(reply.message_code)} {reply.body}")
 
 lvm_sci_pwi.gotoRaDecJ2000(10, 20, callback=callback)
-        
+
 lvm_sci_pwi.offset(ra_add_arcsec = 10)
         
 
