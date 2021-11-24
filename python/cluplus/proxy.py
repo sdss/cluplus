@@ -135,6 +135,8 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
             coro=self._sync_call_command(Proxy.__commands)
             commands = self.client.loop.run_until_complete(coro)[Proxy.__comkey]
             set_commands(commands)
+            return self
+
 
     def isClientConnected(self):
         if not self.client.connection.connection:
