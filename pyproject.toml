@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sdss-cluplus"
-version = "0.0.9"
+version = "0.0.10"
 description = "Additional functionality for sdss-clu"
 authors = ["Florian Briegel <briegel@mpia.de>"]
 license = "BSD-3-Clause"
@@ -24,9 +24,9 @@ packages = [
 ]
 include = ["python/cluplus/etc/*"]
 
-[tool.poetry.build]
-script = "build.py"
-generate-setup-file = false
+#[tool.poetry.build]
+#script = "build.py"
+#generate-setup-file = false
 
 [tool.poetry.scripts]
 singleframe = "cluplus.__main__:main"
