@@ -25,8 +25,7 @@ def classic_proto_proxy(proto_test_actor):
 
     client = AMQPClient(name=f"{proto_test_actor.name}_client-{uuid.uuid4().hex[:8]}")
 
-    proxy = Proxy(client, proto_test_actor.name)
-    proxy.start()
+    proxy = Proxy(client, proto_test_actor.name).start()
 
     yield proxy
 

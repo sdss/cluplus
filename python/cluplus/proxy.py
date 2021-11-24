@@ -132,7 +132,7 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
         if self.client.loop.is_running():
             return start_async()
         else:
-            coro=self._sync_call_command(Proxy.__commands)
+            coro = self._sync_call_command(Proxy.__commands)
             commands = self.client.loop.run_until_complete(coro)[Proxy.__comkey]
             set_commands(commands)
             return self
