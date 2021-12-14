@@ -15,7 +15,7 @@ from clu.parsers.click import command_parser
 
 @command_parser.command(name='__commands')
 @click.pass_context
-def __commands(ctx, command: Command):
+def __commands(ctx, command: Command, *args):
     """Returns all commands."""
 
     # we have to use the help key for the command list, dont want to change the standard model.
@@ -24,7 +24,7 @@ def __commands(ctx, command: Command):
 
 @command_parser.command(name='foo')
 @click.pass_context
-def foo(ctx, command: Command):
+def foo(ctx, command: Command, *args):
     """Returns all commands."""
 
     message = []
