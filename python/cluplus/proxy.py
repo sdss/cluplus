@@ -121,23 +121,24 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
     def start(self):
         """Query and set actor commands."""
 
-        def set_commands(commands):
+        def set_commands(reply):
+            commands = reply[Proxy.__comkey] if isinstance(reply, dict) else reply.help
+
             for c in commands:
                 setattr(self, c, partial(self._hybrid_call_command, c))
                 setattr(self, f"async_{c}", partial(self.call_command, c))
                 setattr(self, f"nowait_{c}", partial(self.call_command, c, nowait=True))
-            
-        async def start_async():
-            commands = (await self.call_command(Proxy.__commands))[Proxy.__comkey]
-            set_commands(commands)
-        
+
+
         if self.client.loop.is_running():
+            async def start_async():
+                set_commands(await self.call_command(Proxy.__commands))
             return start_async()
         else:
             self.async_mode = False
             coro = self._sync_call_command(Proxy.__commands)
-            commands = self.client.loop.run_until_complete(coro)[Proxy.__comkey]
-            set_commands(commands)
+            set_commands(self.client.loop.run_until_complete(coro))
+            self.client.loop.run_until_complete(self.client.stop())
             return self
 
 
@@ -150,19 +151,21 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
                                  command,
                                  *args,
                                  callback: Optional[Callable[[AMQPReply], None]] = None,
+                                 object_hook: Optional[Callable[[AMQPReply], None]] = None,
                                  **kwargs):
 
-        if not self.isClientConnected():
-            await self.client.start()
+        await self.client.start()
 
         try:
             ret = await self.call_command(command,
                                         *args,
                                         callback=callback,
+                                        object_hook=object_hook,
                                         **kwargs)
         except Exception as ex:
             await self.client.stop()
             raise ex
+
         await self.client.stop()
         return ret
 
@@ -171,6 +174,7 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
                              *args,
                              nowait:Bool = False,
                              callback: Optional[Callable[[AMQPReply], None]] = None,
+                             object_hook: Optional[Callable[[AMQPReply], None]] = None,
                              **kwargs):
 
         if self.async_mode:
@@ -178,12 +182,14 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
                                      *args,
                                      nowait=nowait,
                                      callback=callback,
+                                     object_hook=object_hook,
                                      **kwargs)
         else:
             return self.client.loop.run_until_complete(
                 self._sync_call_command(command,
                                         *args,
                                         callback=callback,
+                                        object_hook=object_hook,
                                         **kwargs))
 
     async def call_command(self,
@@ -191,6 +197,7 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
                            *args,
                            callback: Optional[Callable[[AMQPReply], None]] = None,
                            nowait:Bool = False,
+                           object_hook: Optional[Callable[[AMQPReply], None]] = None,
                            **kwargs):
 
         def encode(v):
