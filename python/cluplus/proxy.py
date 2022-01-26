@@ -14,7 +14,7 @@ import sys
 from functools import partial
 from itertools import chain
 from typing import Callable, Optional
-
+from shlex import quote
 import json
 
 from inspect import getcoroutinelocals, iscoroutine
@@ -201,7 +201,8 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
                            **kwargs):
 
         def encode(v):
-            if isinstance(v, (int, float, str, bool)): return v
+            if isinstance(v, (int, float, bool)): return v
+            elif isinstance(v, str): return v if v[0] in "'\"" and v[-1] in "'\"" else quote(v)
             return f"'{json.dumps(v)}'"
 
         args = [encode(v) for v in args] \
