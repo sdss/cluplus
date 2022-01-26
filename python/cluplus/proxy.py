@@ -224,8 +224,6 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
         return ret.replies[-1].body
 
 
-
-
     @staticmethod
     def _errorMapToException(em):
         if isinstance(em, dict):
