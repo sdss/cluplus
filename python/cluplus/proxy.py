@@ -219,9 +219,9 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
         ret = await fu
 
         if hasattr(ret, "status") and ret.status.did_fail:
-            raise self._errorMapToException(ret.replies[-1].body['error'])
+            raise self._errorMapToException(ret.replies[-1].message['error'])
 
-        return ret.replies[-1].body
+        return ret.replies[-1].message
 
 
     @staticmethod

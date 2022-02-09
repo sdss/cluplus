@@ -12,7 +12,7 @@ import uuid
 from logging import DEBUG
 
 from clu import AMQPClient, CommandStatus
-from test_lvm_actors import LVM
+from utils.test_lvm_actors import LVM
 
 from cluplus.proxy import Proxy, invoke, unpack
 
