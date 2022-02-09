@@ -96,7 +96,7 @@ except Exception as ex:
 
 
 def callback(reply): 
-    amqpc.log.warning(f"Reply: {CommandStatus.code_to_status(reply.message_code)} {reply.body}")
+    amqpc.log.warning(f"Reply: {CommandStatus.code_to_status(reply.message_code)} {reply.message}")
 
 proto.setEnabled(True, callback=callback)
 
@@ -283,12 +283,12 @@ def invoke(*cmds):
 
 
 def unpack(ret, *keys):
-    """ unpacks every parameter from the body of the finish reply or list of replies.
+    """ unpacks every parameter from the message of the finish reply or list of replies.
 
         Pythons list unpacking mechanism PEP3132 can be used to assign the value(s)
         
         Be warned if you dont use it the correct way, 
-        whould also be a good place to check the reply body format with schemas.
+        whould also be a good place to check the reply message format with schemas.
 
         >>> a, b, c = [1, 2, 3]
         >>> a

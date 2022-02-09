@@ -52,7 +52,7 @@ async def test_proxy_async_single_basic(async_proto_proxy):
 async def test_proxy_async_single_callback(async_proto_proxy):
 
     def callback(reply): 
-#        async_amqp_client.log.warning(f"Reply: {CommandStatus.code_to_status(reply.message_code)} {reply.body}")
+#        async_amqp_client.log.warning(f"Reply: {CommandStatus.code_to_status(reply.message_code)} {reply.message}")
         if CommandStatus.code_to_status(reply.message_code) == CommandStatus.DONE:
              assert (reply.body == {'enable': True, 'axis0': True, 'axis1': True} )
     
@@ -134,7 +134,7 @@ async def test_proxy_async_multiple_nowait(async_proto_proxy):
     rc1 = await fu1
     rc2 = await fu2
     
-    a, a0, a1, *c = unpack([rc1.replies[-1].body, rc2.replies[-1].body])
+    a, a0, a1, *c = unpack([rc1.replies[-1].message, rc2.replies[-1].message])
 
     assert ([a, a0, a1, c] == [True, True, True, [10.0, 20.0]])
 
