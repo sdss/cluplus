@@ -8,6 +8,9 @@
 
 from __future__ import annotations
 
+import sys
+import uuid
+
 import asyncio
 # import logging
 import sys
@@ -18,7 +21,7 @@ from shlex import quote
 import json
 
 from inspect import getcoroutinelocals, iscoroutine
-from clu import AMQPReply, BaseClient
+from clu import AMQPClient, AMQPReply, BaseClient
 
 from .exceptions import ProxyPartialInvokeException
 
@@ -112,11 +115,29 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
     __commands = "__commands"
     __comkey = "help"
     
-    def __init__(self, client: BaseClient, actor: str):
-        self.client = client
-        self.actor = actor
+    __client = None
+
+    def __init__(self, arg1, arg2 = None, **kwargs):
+        if issubclass(type(arg1), BaseClient):
+            if arg2:
+                 self.actor = arg2
+            else:
+                raise TypeError("__init__() missing 1 required positional argument: 'name'")
+
+            self.client = arg1
+            if not Proxy.__client:
+                Proxy.__client = arg1
+
+        elif isinstance(arg1, str):
+            if not Proxy.__client:
+                Proxy.__client = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}", **kwargs)
+            self.client = Proxy.__client
+            self.actor = arg1
+        else:
+            raise TypeError("__init__() missing required positional arguments")
+
         self.async_mode = True
-#        super().__init__(client, actor)
+
 
     def start(self):
         """Query and set actor commands."""
