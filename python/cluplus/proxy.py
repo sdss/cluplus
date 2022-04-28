@@ -17,6 +17,8 @@ import sys
 from functools import partial
 from itertools import chain
 from typing import Callable, Optional
+from collections.abc import MutableMapping
+
 from shlex import quote
 import json
 
@@ -242,7 +244,7 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
         if hasattr(ret, "status") and ret.status.did_fail:
             raise self._errorMapToException(ret.replies[-1].message['error'])
 
-        return ret.replies[-1].message
+        return ProxyDict(ret.replies[-1].message)
 
 
     @staticmethod
@@ -281,6 +283,8 @@ def invoke(*cmds):
         ret = await asyncio.gather(*[asyncio.create_task(cmd) for cmd in cmds], 
                                    return_exceptions=True)
 
+        ret = ProxyListOfDicts([ProxyDict(r) if isinstance(r, dict) else r for r in ret])
+
         if proxy:
             await proxy.client.stop()
 
@@ -289,7 +293,6 @@ def invoke(*cmds):
                 if isinstance(r, Exception):
                     raise ProxyPartialInvokeException(*ret)
         return ret
-
 
     first_coro = cmds[0]
     assert(iscoroutine(first_coro))
@@ -341,14 +344,50 @@ def unpack(ret, *keys):
     
     if isinstance(ret, list):
         if len(keys) > 0:
-            return [d[i] for d in ret for i in keys if i in d]
+            rkeys = [k for r in ret for k in list(r.keys())]
+            bkeys = [k for k in keys if k not in rkeys]
+            if bkeys:
+                raise KeyError(bkeys)
+
+            return [d[k] for d in ret for k in keys if k in d]
         else:
             return [val for d in ret for val in list(d.values())]
 
     if len(ret) == 1:
         return list(ret.values())[0]
-    elif len(keys) > 1:
-        return [ret[i] for i in keys]
+    elif len(keys) > 0:
+        return [ret[k] for k in keys]
     else:
         return list(ret.values())
+
+
+def flatten(d: MutableMapping, parent_key: str = '', sep: str = '.'):
+    """ flattens a dict of dicts structure """
+    def _flatten_dict_gen(d, parent_key, sep):
+        for k, v in d.items():
+            new_key = parent_key + sep + k if parent_key else k
+            if isinstance(v, MutableMapping):
+                yield from flatten(v, new_key, sep=sep).items()
+            else:
+                yield new_key, v
+
+    return ProxyDict(_flatten_dict_gen(d, parent_key, sep))
+
+
+class ProxyDict(dict):
+   """ Extra helper class for the reply dict """
+   def flatten(self):
+        return flatten(self)
+
+   def unpack(self, *keys):
+        return unpack(self, *keys)
+
+
+class ProxyListOfDicts(list):
+   """ Extra helper class for the reply list of dicts """
+   def flatten(self):
+        return ProxyListOfDicts([flatten(d) for d in self])
+
+   def unpack(self, *keys):
+        return unpack(self, *keys)
 

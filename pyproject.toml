@@ -42,6 +42,7 @@ sdss-access = ">=0.2.3"
 sdsstools = ">=0.4.0"
 sdss-clu = ">=1.5.7"
 jsonpickle = "1.3"
+sdss-lvmtipo = "^0.0.10"
 
 [tool.poetry.dev-dependencies]
 ipython = ">=7.11.0"
