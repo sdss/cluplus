@@ -20,19 +20,15 @@ from cluplus.proxy import Proxy, invoke, unpack
 from proto.actor.actor import ProtoActor
 
 
-
-
 @pytest.fixture(scope="session")
 def classic_proto_proxy(proto_test_actor):
-
-    print(f"xxxxxxxxxxxxx  {proto_test_actor.name}")
 
     client = AMQPClient(name=f"{proto_test_actor.name}_client-{uuid.uuid4().hex[:8]}")
 
     proxy = Proxy(client, proto_test_actor.name).start()
 
     yield proxy
-    
+
 
 def test_proxy_classic_single_basic(classic_proto_proxy):
 
