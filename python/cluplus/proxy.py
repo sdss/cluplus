@@ -28,7 +28,6 @@ from clu import AMQPClient, AMQPReply, BaseClient
 from .exceptions import ProxyPartialInvokeException
 
 
-
 class Proxy():
     """A proxy client with actor commands.
 
