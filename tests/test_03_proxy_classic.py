@@ -154,7 +154,7 @@ def test_proxy_classic_constructor(classic_proto_proxy):
 
 def test_proxy_classic_proxy_client_con_check(classic_proto_proxy):
 
-    # should be false, because in classice mode its only connected while command call.
+    # should be false, because in classic mode its only connected while command call.
     assert(classic_proto_proxy.isClientConnected() == False)
     
     
