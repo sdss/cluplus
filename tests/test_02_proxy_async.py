@@ -127,7 +127,7 @@ async def test_proxy_async_exception_multiple_invoke(async_proto_proxy):
 
 
 @pytest.mark.asyncio
-async def test_proxy_async_exception_multiple_invoke(async_proto_proxy):
+async def test_proxy_async_exception_multiple_invoke_return_exceptions(async_proto_proxy):
 
     from cluplus.exceptions import ProxyPartialInvokeException
     from proto.actor.exceptions import ProtoActorAPIError
