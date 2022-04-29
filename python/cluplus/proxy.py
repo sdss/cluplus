@@ -270,13 +270,13 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
             return Exception(f'Unknown module type {mn}-{tn}:{sval}')
 
 
-def invoke(*cmds):
+def invoke(*cmds, return_exceptions:Bool=False):
     """invokes one or many commands in parallel
 
     On error it throws an exception if one of the commands fails as a dict
     with an exception and return values for every command.
     """
-    async def invoke_now(proxy, *cmds, return_exceptions=False):
+    async def invoke_now(proxy, *cmds, return_exceptions:Bool):
         if proxy and not proxy.isClientConnected():
             await proxy.client.start()
         
@@ -301,9 +301,9 @@ def invoke(*cmds):
     loop = proxy.client.loop
     
     if loop.is_running():
-        return invoke_now(None, *cmds)
+        return invoke_now(None, *cmds, return_exceptions=return_exceptions)
     else:
-        return loop.run_until_complete(invoke_now(proxy, *cmds))
+        return loop.run_until_complete(invoke_now(proxy, *cmds, return_exceptions=return_exceptions))
 
 
 def unpack(ret, *keys):

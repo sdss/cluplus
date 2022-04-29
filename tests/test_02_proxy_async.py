@@ -125,6 +125,29 @@ async def test_proxy_async_exception_multiple_invoke(async_proto_proxy):
 
     pytest.fail("... should not have reached this point")
 
+
+@pytest.mark.asyncio
+async def test_proxy_async_exception_multiple_invoke(async_proto_proxy):
+
+    from cluplus.exceptions import ProxyPartialInvokeException
+    from proto.actor.exceptions import ProtoActorAPIError
+
+    try:
+        ping, version, errPassAsError = await invoke(
+                     async_proto_proxy.ping(),
+                     async_proto_proxy.version(),
+                     async_proto_proxy.errPassAsError(),
+                     return_exceptions=True)
+
+        assert(ping['text'] == 'Pong.')
+        assert(version['version'] != '?')
+        assert(isinstance(errPassAsError, ProtoActorAPIError))
+
+    except ProxyPartialInvokeException as ex:
+        pytest.fail("... should not have reached this point")
+
+
+
 @pytest.mark.asyncio
 async def test_proxy_async_multiple_nowait(async_proto_proxy):
 
@@ -139,3 +162,17 @@ async def test_proxy_async_multiple_nowait(async_proto_proxy):
     assert ([a, a0, a1, c] == [True, True, True, [10.0, 20.0]])
 
 
+@pytest.mark.asyncio
+async def test_proxy_async_proxy_connected(async_amqp_client, async_proto_proxy):
+
+    assert(async_proto_proxy.isClientConnected() == True)
+
+    await async_amqp_client.stop()
+
+    assert(async_proto_proxy.isClientConnected() == False)
+
+    await async_amqp_client.start()
+
+    assert(async_proto_proxy.isClientConnected() == True)
+
+    
