@@ -152,3 +152,17 @@ def test_proxy_classic_constructor(classic_proto_proxy):
     pytest.fail("... should not have reached this point")
 
 
+def test_proxy_classic_proxy(proto_test_actor):
+
+    # we have to reset the default amqpc client, which was set already before.
+    Proxy._Proxy__client = None
+
+    classic_proto_proxy = Proxy(proto_test_actor.name).start()
+    
+    assert (classic_proto_proxy.ping() == {'text': 'Pong.'})
+    
+    assert (classic_proto_proxy.setEnabled(True) == {'enable': True, 'axis0': True, 'axis1': True} )
+
+    assert (classic_proto_proxy.setEnabled(False, axis0=True) == {'enable': False, 'axis0': True, 'axis1': True} )
+
+    
