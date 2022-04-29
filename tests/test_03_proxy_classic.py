@@ -161,7 +161,7 @@ def test_proxy_classic_proxy_client_con_check(classic_proto_proxy):
 
 def test_proxy_classic_proxy_with_default_client(proto_test_actor):
 
-    # default amqpc client already been set.
+    # default amqpc client already been set before.
     Proxy._Proxy__client = None
     
     proxy = Proxy(proto_test_actor.name).start()
