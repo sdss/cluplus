@@ -152,17 +152,11 @@ def test_proxy_classic_constructor(classic_proto_proxy):
     pytest.fail("... should not have reached this point")
 
 
-#def test_proxy_classic_proxy_with_default_client(proto_test_actor):
+def test_proxy_classic_proxy_with_default_client(classic_proto_proxy):
 
-    ## we have to reset the default amqpc client, which was set already before.
-    #Proxy._Proxy__client = None
-
-    #classic_proto_proxy = Proxy(proto_test_actor.name).start()
+    # should be false, because in classice mode its only connected while command call.
+    assert(classic_proto_proxy.isClientConnected() == False)
     
-    #assert (classic_proto_proxy.ping() == {'text': 'Pong.'})
     
-    #assert (classic_proto_proxy.setEnabled(True) == {'enable': True, 'axis0': True, 'axis1': True} )
-
-    #assert (classic_proto_proxy.setEnabled(False, axis0=True) == {'enable': False, 'axis0': True, 'axis1': True} )
 
     
