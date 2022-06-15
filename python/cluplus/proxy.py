@@ -118,7 +118,7 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
     
     __client = None
 
-    def __init__(self, arg1, arg2 = None, **kwargs):
+    def __init__(self, arg1, arg2 = None, async_mode:bool=True, **kwargs):
         if issubclass(type(arg1), BaseClient):
             if arg2:
                  self.actor = arg2
@@ -137,10 +137,10 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
         else:
             raise TypeError("__init__() missing required positional arguments")
 
-        self.async_mode = True
+        self.async_mode = async_mode
 
 
-    def start(self):
+    def start(self, async_mode:bool=True):
         """Query and set actor commands."""
 
         def set_commands(reply):
@@ -152,10 +152,13 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
                 setattr(self, f"nowait_{c}", partial(self.call_command, c, nowait=True))
 
 
-        if self.client.loop.is_running():
-            async def start_async():
+        if async_mode and self.client.loop.is_running():
+            async def start_async(_self):
+                if not self.isClientConnected():
+                    await self.client.start()
                 set_commands(await self.call_command(Proxy.__commands))
-            return start_async()
+                return _self
+            return start_async(self)
         else:
             self.async_mode = False
             coro = self._sync_call_command(Proxy.__commands)
