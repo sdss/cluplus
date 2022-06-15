@@ -10,10 +10,9 @@ from __future__ import annotations
 
 import sys
 import uuid
-
+import os
 import asyncio
-# import logging
-import sys
+
 from functools import partial
 from itertools import chain
 from typing import Callable, Optional
@@ -131,7 +130,8 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
 
         elif isinstance(arg1, str):
             if not Proxy.__client:
-                Proxy.__client = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}", **kwargs)
+                kwa = {"host": os.getenv("RMQ_HOST","localhost"), **kwargs}
+                Proxy.__client = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}", **kwa)
             self.client = Proxy.__client
             self.actor = arg1
         else:
