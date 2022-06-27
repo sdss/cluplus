@@ -32,7 +32,7 @@ async def async_amqp_client(proto_test_actor):
 @pytest.fixture(scope="session")
 async def async_proto_proxy(async_amqp_client, proto_test_actor):
 
-    proxy = Proxy(async_amqp_client, proto_test_actor.name)
+    proxy = Proxy(proto_test_actor.name, amqpc=async_amqp_client)
     await proxy.start()
 
     yield proxy
@@ -151,8 +151,8 @@ async def test_proxy_async_exception_multiple_invoke_return_exceptions(async_pro
 @pytest.mark.asyncio
 async def test_proxy_async_multiple_nowait(async_proto_proxy):
 
-    fu1 = await async_proto_proxy.async_setEnabled(True, nowait=True)
-    fu2 = await async_proto_proxy.nowait_gotoRaDecJ2000(10,20)
+    fu1 = await async_proto_proxy.setEnabled(True, nowait=True)
+    fu2 = await async_proto_proxy.gotoRaDecJ2000(10,20, nowait=True)
 
     rc1 = await fu1
     rc2 = await fu2
@@ -165,14 +165,14 @@ async def test_proxy_async_multiple_nowait(async_proto_proxy):
 @pytest.mark.asyncio
 async def test_proxy_async_proxy_connected(async_amqp_client, async_proto_proxy):
 
-    assert(async_proto_proxy.isClientConnected() == True)
+    assert(async_proto_proxy.isAmqpcConnected() == True)
 
     await async_amqp_client.stop()
 
-    assert(async_proto_proxy.isClientConnected() == False)
+    assert(async_proto_proxy.isAmqpcConnected() == False)
 
     await async_amqp_client.start()
 
-    assert(async_proto_proxy.isClientConnected() == True)
+    assert(async_proto_proxy.isAmqpcConnected() == True)
 
     

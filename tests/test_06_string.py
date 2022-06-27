@@ -35,7 +35,7 @@ async def amqp_client(proto_test_actor, event_loop):
 @pytest.fixture(scope="session")
 async def proto_proxy(amqp_client, proto_test_actor):
 
-    proxy = Proxy(amqp_client, proto_test_actor.name)
+    proxy = Proxy(proto_test_actor.name, amqpc=amqp_client)
     await proxy.start()
 
     yield proxy

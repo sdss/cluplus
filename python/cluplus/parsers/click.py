@@ -22,21 +22,21 @@ def __commands(ctx, command: Command, *args):
     command.finish(help=[k for k in ctx.command.commands.keys() if k[:2] != '__'])
 
 
-@command_parser.command(name='foo')
-@click.pass_context
-def foo(ctx, command: Command, *args):
-    """Returns all commands."""
+#@command_parser.command(name='foo')
+#@click.pass_context
+#def foo(ctx, command: Command, *args):
+    #"""Returns all commands."""
 
-    message = []
-    for k, v in ctx.command.commands.items():
-        if k[:2] == '__': continue
-        line = f"{k}("
-        for v in v.params:
-            line += v.name + ":" + str(v.type).lower()
-            if v.default: line += "=" + str(v.default)
-            line += "," 
-        line += ")"
-        message.append(line)
+    #message = []
+    #for k, v in ctx.command.commands.items():
+        #if k[:2] == '__': continue
+        #line = f"{k}("
+        #for v in v.params:
+            #line += v.name + ":" + str(v.type).lower()
+            #if v.default: line += "=" + str(v.default)
+            #line += "," 
+        #line += ")"
+        #message.append(line)
 
-    command.finish(help=message)
+    #command.finish(help=message)
 

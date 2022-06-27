@@ -16,3 +16,8 @@ class ProxyPartialInvokeException(ProxyException):
     """One or more invocation failed"""
 
     pass
+
+class ProxyActorIsNotReachableException(ProxyException):
+    """The actor is not reachable"""
+
+    pass

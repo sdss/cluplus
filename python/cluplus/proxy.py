@@ -12,6 +12,8 @@ import sys
 import uuid
 import os
 import asyncio
+from os.path import basename
+from socket import gethostname
 
 from functools import partial
 from itertools import chain
@@ -24,198 +26,83 @@ import json
 from inspect import getcoroutinelocals, iscoroutine
 from clu import AMQPClient, AMQPReply, BaseClient
 
-from .exceptions import ProxyPartialInvokeException
+from .exceptions import ProxyPartialInvokeException, ProxyActorIsNotReachableException
 
 
 class Proxy():
     """A proxy client with actor commands.
-
-import uuid
-from clu import AMQPClient, CommandStatus
-from cluplus.proxy import Proxy, invoke, unpack
-
-actor = "proto"
-
-amqpc = AMQPClient(name=f"proxy-{uuid.uuid4().hex[:8]}")
-
-proto = Proxy(amqpc, actor)
-proto.start()
-
-async def start_now(proto):
-    await amqpc.start()
-    await proto.start()
-    await amqpc.stop()
-
-amqpc.loop.run_until_complete(start_now(proto))
-
-print(proto.ping())
-
-async def start_ping(proto):
-    await amqpc.start()
-    print(await proto.ping())
-    await amqpc.stop()
-
-amqpc.loop.run_until_complete(start_ping(proto))
-
-async def start_async_ping(proto):
-    await amqpc.start()
-    print(await proto.async_ping())
-    await amqpc.stop()
-
-amqpc.loop.run_until_complete(start_async_ping(proto))
-
-
-invoke(proto.async_setEnabled(True, axis0=True),
-       proto.async_gotoRaDecJ2000(10,20))
-
-
-unpack(proto.ping())
-
-a, a0, b0, *coord = unpack(invoke(proto.async_setEnabled(True, axis0=True),
-                                  proto.async_gotoRaDecJ2000(10,20)))
-try:
-   proto.errPassAsError()
-   
-except Exception as ex:
-   print(f"got: {ex}")
-
-try:
-   amqpc.loop.run_until_complete(invoke(proto.ping(async_mode=True),
-                                        proto.async_version(),
-                                        proto.async_errPassAsError()))
-except Exception as ex:
-   print(ex)
-
-try:
-    async def start_async_invoke():
-        await amqpc.start()
-        await invoke(proto.ping(),
-                     proto.version(),
-                     proto.errPassAsError())
-        await amqpc.stop()
-    amqpc.loop.run_until_complete(start_async_invoke())
-except Exception as ex:
-   print(ex)
-
-
-def callback(reply): 
-    amqpc.log.warning(f"Reply: {CommandStatus.code_to_status(reply.message_code)} {reply.message}")
-
-proto.setEnabled(True, callback=callback)
-
-
-async def start_async_setEnabled():
-        await amqpc.start()
-        await proto.setEnabled(True, callback=callback)
-        await amqpc.stop()
-
-amqpc.loop.run_until_complete(start_async_setEnabled())
     """
-    
+   
     __commands = "__commands"
-    __comkey = "help"
+    __commands_key = "help"
     
-    __client = None
+    __amqpc = None
 
-    def __init__(self, arg1, arg2 = None, async_mode:bool=True, **kwargs):
-        if issubclass(type(arg1), BaseClient):
-            if arg2:
-                 self.actor = arg2
+    def __init__(self, actor:str, amqpc:BaseClient = None, **kwargs):
+        """ init """
+
+        self.actor = actor
+        self.amqpc = amqpc
+#        self.task = None
+
+        
+
+        if not self.amqpc:
+            if Proxy.__amqpc:
+                self.amqpc = Proxy.__amqpc
             else:
-                raise TypeError("__init__() missing 1 required positional argument: 'name'")
-
-            self.client = arg1
-            if not Proxy.__client:
-                Proxy.__client = arg1
-
-        elif isinstance(arg1, str):
-            if not Proxy.__client:
                 kwa = {"host": os.getenv("RMQ_HOST","localhost"), **kwargs}
-                Proxy.__client = AMQPClient(name=f"{sys.argv[0]}.proxy-{uuid.uuid4().hex[:8]}", **kwa)
-            self.client = Proxy.__client
-            self.actor = arg1
-        else:
-            raise TypeError("__init__() missing required positional arguments")
+                self.amqpc = Proxy.__amqpc = AMQPClient(name=f"{gethostname()}_{basename(sys.argv[0])}-{uuid.uuid4().hex[:8]}", **kwa)
 
-        self.async_mode = async_mode
-
-
-    def start(self, async_mode:bool=True):
+ 
+    async def start(self):
         """Query and set actor commands."""
 
-        def set_commands(reply):
-            commands = reply[Proxy.__comkey] if isinstance(reply, dict) else reply.help
+        if not self.isAmqpcConnected():
+            await self.amqpc.start()
 
-            for c in commands:
-                setattr(self, c, partial(self._hybrid_call_command, c))
-                setattr(self, f"async_{c}", partial(self.call_command, c))
-                setattr(self, f"nowait_{c}", partial(self.call_command, c, nowait=True))
-
-
-        if async_mode and self.client.loop.is_running():
-            async def start_async(_self):
-                if not self.isClientConnected():
-                    await self.client.start()
-                set_commands(await self.call_command(Proxy.__commands))
-                return _self
-            return start_async(self)
-        else:
-            self.async_mode = False
-            coro = self._sync_call_command(Proxy.__commands)
-            set_commands(self.client.loop.run_until_complete(coro))
-            self.client.loop.run_until_complete(self.client.stop())
-            return self
+        await self.__pull_commands()
+   
+        return self
 
 
-    def isClientConnected(self):
-        if not self.client.connection.connection:
-            return False
-        return not self.client.connection.connection.is_closed
+    def __getattr__(self, attr):
+        try:
+            object.__getattribute__(self, "ping")
 
-    async def _sync_call_command(self,
-                                 command,
-                                 *args,
-                                 callback: Optional[Callable[[AMQPReply], None]] = None,
-                                 object_hook: Optional[Callable[[AMQPReply], None]] = None,
-                                 **kwargs):
+        except AttributeError:
+            self.amqpc.log.warning(f"actor {self.actor} {attr} currently not reachable.")
+            setattr(self, attr, partial(self.call_command, attr))
+#            raise ProxyActorIsNotReachableException()
 
-        await self.client.start()
+        return self.__getattribute__(attr)
+
+    async def __pull_commands(self, delay = 0):
 
         try:
-            ret = await self.call_command(command,
-                                        *args,
-                                        callback=callback,
-                                        object_hook=object_hook,
-                                        **kwargs)
+            await asyncio.sleep(delay)
+
+            reply = await self.call_command(Proxy.__commands)
+
+            commands = reply[Proxy.__commands_key] if isinstance(reply, dict) else reply.help
+
+            for c in commands:
+                setattr(self, c, partial(self.call_command, c))
+                # setattr(self, f"nowait_{c}", partial(self.call_command, c, nowait=True))
+            # self.task = None
+
         except Exception as ex:
-            await self.client.stop()
-            raise ex
+            if not delay:
+                self.amqpc.log.warning(f"actor {self.actor} currently not reachable.")
+            # self.task = self.amqpc.loop.create_task(self.__pull_commands(2))
+            self.amqpc.loop.create_task(self.__pull_commands(2))
 
-        await self.client.stop()
-        return ret
 
-    def _hybrid_call_command(self,
-                             command,
-                             *args,
-                             nowait:Bool = False,
-                             callback: Optional[Callable[[AMQPReply], None]] = None,
-                             object_hook: Optional[Callable[[AMQPReply], None]] = None,
-                             **kwargs):
+    def isAmqpcConnected(self):
+        if not self.amqpc.connection.connection:
+            return False
+        return not self.amqpc.connection.connection.is_closed
 
-        if self.async_mode:
-            return self.call_command(command,
-                                     *args,
-                                     nowait=nowait,
-                                     callback=callback,
-                                     object_hook=object_hook,
-                                     **kwargs)
-        else:
-            return self.client.loop.run_until_complete(
-                self._sync_call_command(command,
-                                        *args,
-                                        callback=callback,
-                                        object_hook=object_hook,
-                                        **kwargs))
 
     async def call_command(self,
                            command: str,
@@ -234,7 +121,7 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
              + list(chain.from_iterable(('--' + k, encode(v))
                                         for k, v in kwargs.items()))
 
-        fu = await self.client.send_command(self.actor,
+        fu = await self.amqpc.send_command(self.actor,
                                                 command,
                                                 *args,
                                                 callback=callback)
@@ -247,7 +134,6 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
             raise self._errorMapToException(ret.replies[-1].message['error'])
 
         return ProxyDict(ret.replies[-1].message)
-
 
     @staticmethod
     def _errorMapToException(em):
@@ -272,40 +158,22 @@ amqpc.loop.run_until_complete(start_async_setEnabled())
             return Exception(f'Unknown module type {mn}-{tn}:{sval}')
 
 
-def invoke(*cmds, return_exceptions:Bool=False):
+async def invoke(*cmds, return_exceptions:Bool=False):
     """invokes one or many commands in parallel
 
     On error it throws an exception if one of the commands fails as a dict
     with an exception and return values for every command.
     """
-    async def invoke_now(proxy, *cmds, return_exceptions:Bool):
-        if proxy and not proxy.isClientConnected():
-            await proxy.client.start()
-        
-        ret = await asyncio.gather(*[asyncio.create_task(cmd) for cmd in cmds], 
-                                   return_exceptions=True)
-
-        ret = ProxyListOfDicts([ProxyDict(r) if isinstance(r, dict) else r for r in ret])
-
-        if proxy:
-            await proxy.client.stop()
-
-        if not return_exceptions:
-            for r in ret:
-                if isinstance(r, Exception):
-                    raise ProxyPartialInvokeException(*ret)
-        return ret
-
-    first_coro = cmds[0]
-    assert(iscoroutine(first_coro))
-
-    proxy = getcoroutinelocals(first_coro)['self']
-    loop = proxy.client.loop
     
-    if loop.is_running():
-        return invoke_now(None, *cmds, return_exceptions=return_exceptions)
-    else:
-        return loop.run_until_complete(invoke_now(proxy, *cmds, return_exceptions=return_exceptions))
+    ret = await asyncio.gather(*cmds, return_exceptions=True)
+
+    ret = ProxyListOfDicts([ProxyDict(r) if isinstance(r, dict) else r for r in ret])
+
+    if not return_exceptions:
+        for r in ret:
+            if isinstance(r, Exception):
+                raise ProxyPartialInvokeException(*ret)
+    return ret
 
 
 def unpack(ret, *keys):

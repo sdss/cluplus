@@ -79,7 +79,7 @@ def test_pickle_unpickle():
 @pytest.mark.asyncio
 async def test_proxy_json_simple(amqp_client, proto_test_actor):
 
-    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
+    proto_proxy = Proxy(proto_test_actor.name, amqpc=amqp_client)
     await proto_proxy.start()
 
     bright = np.rec.array([(1,'Sirius', -1.45, 'A1V'),
@@ -99,7 +99,7 @@ async def test_proxy_json_simple(amqp_client, proto_test_actor):
 @pytest.mark.asyncio
 async def test_proxy_json_multiple(amqp_client, proto_test_actor):
 
-    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
+    proto_proxy = Proxy(proto_test_actor.name, amqpc=amqp_client)
     await proto_proxy.start()
 
     bright = np.rec.array([(1,'Sirius', -1.45, 'A1V'),
@@ -119,7 +119,7 @@ async def test_proxy_json_multiple(amqp_client, proto_test_actor):
 @pytest.mark.asyncio
 async def test_proxy_json_numpy_array(amqp_client, proto_test_actor):
 
-    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
+    proto_proxy = Proxy(proto_test_actor.name, amqpc=amqp_client)
     await proto_proxy.start()
 
     arr = np.vander(np.linspace(0, 1, 1200), 2)

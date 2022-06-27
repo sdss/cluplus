@@ -68,7 +68,7 @@ def test_proxy_jsonstring2():
 @pytest.mark.asyncio
 async def test_proxy_json_list_and_dict(amqp_client, proto_test_actor):
 
-    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
+    proto_proxy = Proxy(proto_test_actor.name, amqpc=amqp_client)
     await proto_proxy.start()
     
     try:
@@ -82,7 +82,7 @@ async def test_proxy_json_list_and_dict(amqp_client, proto_test_actor):
 @pytest.mark.asyncio
 async def test_proxy_json_fits(amqp_client, proto_test_actor):
 
-    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
+    proto_proxy = Proxy(proto_test_actor.name, amqpc=amqp_client)
     await proto_proxy.start()
     
     try:
@@ -96,7 +96,7 @@ async def test_proxy_json_fits(amqp_client, proto_test_actor):
 @pytest.mark.asyncio
 async def test_proxy_json_fits_with_opt(amqp_client, proto_test_actor):
 
-    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
+    proto_proxy = Proxy(proto_test_actor.name, amqpc=amqp_client)
     await proto_proxy.start()
     
     try:
@@ -112,7 +112,7 @@ async def test_proxy_json_bogus(amqp_client, proto_test_actor):
     ''' clu doesnt handle click parser errors coreectly'''
 
 
-    proto_proxy = Proxy(amqp_client, proto_test_actor.name)
+    proto_proxy = Proxy(proto_test_actor.name, amqpc=amqp_client)
     await proto_proxy.start()
     
     try:
