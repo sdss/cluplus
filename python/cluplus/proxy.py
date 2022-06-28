@@ -66,6 +66,11 @@ class Proxy():
         return self
 
 
+    @staticmethod
+    def setDefaultAmqpc(amqpc):
+        Proxy.__amqpc = amqpc
+
+
     def __getattr__(self, attr):
         try:
             object.__getattribute__(self, "ping")
