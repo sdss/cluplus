@@ -37,6 +37,7 @@ async def async_proto_proxy(async_amqp_client, proto_test_actor):
 
     yield proxy
 
+    await proxy.stop()
 
 @pytest.mark.asyncio
 async def test_proxy_async_single_basic(async_proto_proxy):

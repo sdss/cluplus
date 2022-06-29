@@ -45,8 +45,6 @@ class Proxy():
         self.amqpc = amqpc
 #        self.task = None
 
-        
-
         if not self.amqpc:
             if Proxy.__amqpc:
                 self.amqpc = Proxy.__amqpc
@@ -65,6 +63,10 @@ class Proxy():
    
         return self
 
+
+    async def stop(self):
+        """stop actor"""
+        pass # maybe stopping __pull_commands might be good
 
     @staticmethod
     def setDefaultAmqpc(amqpc):
