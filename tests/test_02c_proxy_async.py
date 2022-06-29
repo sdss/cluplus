@@ -35,7 +35,6 @@ async def test_proxy_async_single_basic(async_proto_proxy):
     assert (await async_proto_proxy.ping() == {'text': 'Pong.'})
     
 
-
 @pytest.mark.asyncio
 async def test_proxy_async_single_basic(proto_test_actor):
 
@@ -44,6 +43,7 @@ async def test_proxy_async_single_basic(proto_test_actor):
        await proxy.ping()
        
     except Exception as ex:
+        print(ex)
         return
 
     pytest.fail("... should not have reached this point")
