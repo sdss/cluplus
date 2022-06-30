@@ -164,4 +164,4 @@ async def test_proxy_async_proxy_connected(async_proto_proxy):
 
     assert(async_proto_proxy.isAmqpcConnected() == True)
 
-    
+

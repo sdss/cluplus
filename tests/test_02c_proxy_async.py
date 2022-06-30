@@ -18,19 +18,12 @@ from cluplus import __version__
 from cluplus.proxy import Proxy, invoke, unpack
 
 
-@pytest.fixture(scope="session")
-async def async_proto_proxy(proto_test_actor):
+@pytest.mark.asyncio
+async def test_proxy_async_single_basic(proto_test_actor):
 
     Proxy.setDefaultAmqpc(AMQPClient(name=f"{proto_test_actor.name}_client2-{uuid.uuid4().hex[:8]}"))
-
-    proxy = Proxy(proto_test_actor.name)
-    await proxy.start()
-
-    yield proxy
-
-
-@pytest.mark.asyncio
-async def test_proxy_async_single_basic(async_proto_proxy):
+    
+    proxy = await Proxy(proto_test_actor.name).start()
 
     assert (await async_proto_proxy.ping() == {'text': 'Pong.'})
     
@@ -43,7 +36,8 @@ async def test_proxy_async_single_basic(proto_test_actor):
        await proxy.ping()
        
     except Exception as ex:
-        print(ex)
         return
 
     pytest.fail("... should not have reached this point")
+
+    
