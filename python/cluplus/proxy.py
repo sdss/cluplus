@@ -66,7 +66,9 @@ class Proxy():
 
     async def stop(self):
         """stop actor"""
-        pass # maybe stopping __pull_commands might be good
+        if hasattr(self, "__pull_commands_task"):
+            self.__pull_commands_task.cancel()
+            delattr(self ,"__pull_commands_task")
 
     @staticmethod
     def setDefaultAmqpc(amqpc):
@@ -74,13 +76,14 @@ class Proxy():
 
 
     def __getattr__(self, attr):
-        try:
-            object.__getattribute__(self, "ping")
+        if attr != "__pull_commands_task":
+            try:
+                object.__getattribute__(self, "ping")
 
-        except AttributeError:
-            self.amqpc.log.warning(f"actor {self.actor} {attr} currently not reachable.")
-            setattr(self, attr, partial(self.call_command, attr))
-#            raise ProxyActorIsNotReachableException()
+            except AttributeError:
+                self.amqpc.log.warning(f"actor {self.actor} {attr} currently not reachable.")
+                setattr(self, attr, partial(self.call_command, attr))
+    #            raise ProxyActorIsNotReachableException()
 
         return self.__getattribute__(attr)
 
@@ -96,13 +99,16 @@ class Proxy():
             for c in commands:
                 setattr(self, c, partial(self.call_command, c))
                 # setattr(self, f"nowait_{c}", partial(self.call_command, c, nowait=True))
-            # self.task = None
+
+            if hasattr(self, "__pull_commands_task"):
+                delattr(self ,"__pull_commands_task")
+
 
         except Exception as ex:
             if not delay:
                 self.amqpc.log.warning(f"actor {self.actor} currently not reachable.")
-            # self.task = self.amqpc.loop.create_task(self.__pull_commands(2))
-            self.amqpc.loop.create_task(self.__pull_commands(2))
+            if not hasattr(self, "__pull_commands_task"):
+                self.__pull_commands_task = self.amqpc.loop.create_task(self.__pull_commands(2))
 
 
     def isAmqpcConnected(self):
@@ -149,6 +155,10 @@ class Proxy():
                                             em['exception_type'],
                                             em['exception_module'])
         return Exception(em)
+
+    @staticmethod
+    def _exceptionToMap(ex):
+        return { "exception_module": ex.__class__.__module__, "exception_type": ex.__class__.__name__, "exception_message": str(ex) }
 
 
     @staticmethod
