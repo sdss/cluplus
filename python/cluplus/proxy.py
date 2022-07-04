@@ -43,18 +43,17 @@ class Proxy():
 
         self.actor = actor
         self.amqpc = amqpc
-#        self.task = None
+        self.kwargs = {"host": os.getenv("RMQ_HOST","localhost"), **kwargs}
+ 
+    async def start(self):
+        """Query and set actor commands."""
 
         if not self.amqpc:
             if Proxy.__amqpc:
                 self.amqpc = Proxy.__amqpc
             else:
-                kwa = {"host": os.getenv("RMQ_HOST","localhost"), **kwargs}
-                self.amqpc = Proxy.__amqpc = AMQPClient(name=f"{gethostname()}_{basename(sys.argv[0])}-{uuid.uuid4().hex[:8]}", **kwa)
-
- 
-    async def start(self):
-        """Query and set actor commands."""
+                self.amqpc = Proxy.__amqpc = AMQPClient(name=f"{gethostname()}_{basename(sys.argv[0])}-{uuid.uuid4().hex[:8]}", **self.kwargs)
+                delattr(self ,"kwargs")
 
         if not self.isAmqpcConnected():
             await self.amqpc.start()
@@ -83,7 +82,6 @@ class Proxy():
             except AttributeError:
                 self.amqpc.log.warning(f"actor {self.actor} {attr} currently not reachable.")
                 setattr(self, attr, partial(self.call_command, attr))
-    #            raise ProxyActorIsNotReachableException()
 
         return self.__getattribute__(attr)
 
