@@ -43,7 +43,7 @@ class Proxy():
 
         self.actor = actor
         self.amqpc = amqpc
-        self.kwargs = {"host": os.getenv("RMQ_HOST","localhost"), **kwargs}
+        self.kwargs = {"url": os.getenv("RMQ_URL", None), "host": os.getenv("RMQ_HOST", "localhost"), **kwargs}
  
     async def start(self):
         """Query and set actor commands."""
