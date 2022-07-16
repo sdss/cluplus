@@ -1,4 +1,5 @@
 # Actor configuration for the AMQPActor class
+
 actor:
     name: proto
     host: localhost
