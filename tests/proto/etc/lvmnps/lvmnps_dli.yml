@@ -13,6 +13,6 @@ timeouts:
 # Actor configuration for the AMQPActor class
 actor:
     name: lvmnps
-    host: localhost
+    host: !env "${SHOULD_NOT_EXIST_SOMWHERE:-localhost}"
     port: 5672
     log_dir: '~/tmp/log'
