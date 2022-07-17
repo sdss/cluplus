@@ -16,6 +16,15 @@ from clu import AMQPClient, CommandStatus
 
 from cluplus import __version__
 from cluplus.proxy import Proxy, invoke, unpack
+from cluplus.exceptions import ProxyActorIsNotReachableException
+
+@pytest.mark.asyncio
+async def test_proxy_exception_to_map():
+    
+    em = Proxy._exceptionToMap(ProxyActorIsNotReachableException())
+    assert  (em['exception_module'] == 'cluplus.exceptions')
+    assert  (em['exception_type'] == 'ProxyActorIsNotReachableException')
+    assert  (em['exception_message'] == '')
 
 
 @pytest.mark.asyncio
@@ -34,12 +43,36 @@ async def test_proxy_async_single_basic(proto_test_actor):
 
     proxy = await Proxy("nonexistant").start()
     try:
-       await proxy.ping()
+        await proxy.ping()
        
     except Exception as ex:
+        await asyncio.sleep(0.2)
         return
 
     pytest.fail("... should not have reached this point")
 
 
     
+@pytest.mark.asyncio
+async def proto_test_delayed_actor(event_loop):
+
+    actor = ProtoActor(name=f"proto_delayed-{uuid.uuid4().hex[:8]}")
+
+    proxy = await Proxy(actor.name).start()
+
+    await asyncio.sleep(0.1)
+    assert(proxy.hasattr(self, "__pull_commands_task"))
+    await proxy.stop()
+    assert(not proxy.hasattr(self, "__pull_commands_task"))
+
+    await proxy.start()
+    assert(proxy.hasattr(self, "__pull_commands_task"))
+    
+    await actor.start()
+   
+    await asyncio.sleep(1.6)
+    assert(not proxy.hasattr(self, "__pull_commands_task"))
+
+    await proxy.help()
+    assert(not proxy.hasattr(self, "__pull_commands_task"))
+
