@@ -58,11 +58,11 @@ async def proto_test_delayed_actor(event_loop):
 
     Proxy.__pull_commands_delay = 0.1
 
-    actor = ProtoActor(name=f"proto_delayed-{uuid.uuid4().hex[:8]}")
+    actor2 = ProtoActor(name=f"proto_delayed-{uuid.uuid4().hex[:8]}")
 
-    proxy = await Proxy(actor.name).start()
+    proxy = await Proxy(actor2.name).start()
 
-    await asyncio.sleep(0.1)
+    await asyncio.sleep(0.3)
     assert(proxy.hasattr(self, "__pull_commands_task"))
     await proxy.stop()
     assert(not proxy.hasattr(self, "__pull_commands_task"))
@@ -70,7 +70,7 @@ async def proto_test_delayed_actor(event_loop):
     await proxy.start()
     assert(proxy.hasattr(self, "__pull_commands_task"))
     
-    await actor.start()
+    await actor2.start()
    
     await asyncio.sleep(0.2)
     assert(not proxy.hasattr(self, "__pull_commands_task"))
