@@ -46,7 +46,6 @@ async def test_proxy_async_single_basic(proto_test_actor):
         await proxy.ping()
        
     except Exception as ex:
-        await asyncio.sleep(0.2)
         return
 
     pytest.fail("... should not have reached this point")
