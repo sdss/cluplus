@@ -37,6 +37,7 @@ class Proxy():
     __commands_key = "help"
     
     __amqpc = None
+    __pull_commands_delay = 2
 
     def __init__(self, actor:str, amqpc:BaseClient = None, **kwargs):
         """ init """
@@ -106,7 +107,7 @@ class Proxy():
             if not delay:
                 self.amqpc.log.warning(f"actor {self.actor} currently not reachable.")
             if not hasattr(self, "__pull_commands_task"):
-                self.__pull_commands_task = self.amqpc.loop.create_task(self.__pull_commands(2))
+                self.__pull_commands_task = self.amqpc.loop.create_task(self.__pull_commands(Proxy.__pull_commands_delay))
 
 
     def isAmqpcConnected(self):

@@ -56,6 +56,8 @@ async def test_proxy_async_single_basic(proto_test_actor):
 @pytest.mark.asyncio
 async def proto_test_delayed_actor(event_loop):
 
+    Proxy.__pull_commands_delay = 0.1
+
     actor = ProtoActor(name=f"proto_delayed-{uuid.uuid4().hex[:8]}")
 
     proxy = await Proxy(actor.name).start()
@@ -70,7 +72,7 @@ async def proto_test_delayed_actor(event_loop):
     
     await actor.start()
    
-    await asyncio.sleep(1.6)
+    await asyncio.sleep(0.2)
     assert(not proxy.hasattr(self, "__pull_commands_task"))
 
     await proxy.help()
