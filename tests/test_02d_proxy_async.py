@@ -27,6 +27,7 @@ async def test_proxy_async_delayed(event_loop):
     actor = ProtoActor(name=f"proto_delayed-{uuid.uuid4().hex[:8]}")
 
     proxy = await Proxy(actor.name).start()
+    await asyncio.sleep(0.3)
 
     assert(hasattr(proxy, "_pull_commands_task"))
 
