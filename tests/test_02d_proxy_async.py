@@ -38,11 +38,10 @@ async def test_proxy_async_delayed(event_loop):
     
     await actor.start()
    
-    await asyncio.sleep(0.1)
+    await asyncio.sleep(0.2)
     assert(not hasattr(proxy, "_pull_commands_task"))
 
     await proxy.help()
-    assert(not hasattr(proxy, "_pull_commands_task"))
 
     await proxy.stop()
 
