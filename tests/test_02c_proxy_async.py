@@ -20,7 +20,7 @@ from cluplus.exceptions import ProxyActorIsNotReachableException
 
 @pytest.mark.asyncio
 async def test_proxy_exception_to_map():
-    
+
     em = Proxy._exceptionToMap(ProxyActorIsNotReachableException())
     assert  (em['exception_module'] == 'cluplus.exceptions')
     assert  (em['exception_type'] == 'ProxyActorIsNotReachableException')
@@ -35,8 +35,7 @@ async def test_proxy_async_default_amqpc(proto_test_actor):
     proxy = await Proxy(proto_test_actor.name).start()
 
     assert (await proxy.ping() == {'text': 'Pong.'})
-    
-    
+
 
 @pytest.mark.asyncio
 async def test_proxy_async_single_basic(proto_test_actor):
@@ -47,33 +46,7 @@ async def test_proxy_async_single_basic(proto_test_actor):
        
     except Exception as ex:
         return
-
     pytest.fail("... should not have reached this point")
 
 
     
-@pytest.mark.asyncio
-async def proto_test_delayed_actor(event_loop):
-
-    Proxy.__pull_commands_delay = 0.1
-
-    actor2 = ProtoActor(name=f"proto_delayed-{uuid.uuid4().hex[:8]}")
-
-    proxy = await Proxy(actor2.name).start()
-
-    await asyncio.sleep(0.3)
-    assert(proxy.hasattr(self, "__pull_commands_task"))
-    await proxy.stop()
-    assert(not proxy.hasattr(self, "__pull_commands_task"))
-
-    await proxy.start()
-    assert(proxy.hasattr(self, "__pull_commands_task"))
-    
-    await actor2.start()
-   
-    await asyncio.sleep(0.2)
-    assert(not proxy.hasattr(self, "__pull_commands_task"))
-
-    await proxy.help()
-    assert(not proxy.hasattr(self, "__pull_commands_task"))
-

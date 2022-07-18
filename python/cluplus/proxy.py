@@ -37,7 +37,8 @@ class Proxy():
     __commands_key = "help"
     
     __amqpc = None
-    __pull_commands_delay = 2
+
+    pull_commands_delay = 2
 
     def __init__(self, actor:str, amqpc:BaseClient = None, **kwargs):
         """ init """
@@ -66,25 +67,25 @@ class Proxy():
 
     async def stop(self):
         """stop actor"""
-        if hasattr(self, "__pull_commands_task"):
-            self.__pull_commands_task.cancel()
-            delattr(self ,"__pull_commands_task")
+        if hasattr(self, "_pull_commands_task"):
+            self._pull_commands_task.cancel()
+            delattr(self ,"_pull_commands_task")
 
     @staticmethod
     def setDefaultAmqpc(amqpc):
         Proxy.__amqpc = amqpc
 
+    #def __getattr__(self, attr):
+        #if attr != "_pull_commands_task":
+            #try:
+                #super(Proxy, self).__getattribute__(self, "ping")
 
-    def __getattr__(self, attr):
-        if attr != "__pull_commands_task":
-            try:
-                object.__getattribute__(self, "ping")
+            #except AttributeError:
+                #self.amqpc.log.warning(f"actor {self.actor} {attr} currently not reachable.")
+                #setattr(self, attr, partial(self.call_command, attr))
 
-            except AttributeError:
-                self.amqpc.log.warning(f"actor {self.actor} {attr} currently not reachable.")
-                setattr(self, attr, partial(self.call_command, attr))
-
-        return self.__getattribute__(attr)
+        #return super(Proxy, self).__getattribute__(attr)
+##        return self.__getattribute__(attr)
 
     async def __pull_commands(self, delay = 0):
 
@@ -99,15 +100,16 @@ class Proxy():
                 setattr(self, c, partial(self.call_command, c))
                 # setattr(self, f"nowait_{c}", partial(self.call_command, c, nowait=True))
 
-            if hasattr(self, "__pull_commands_task"):
-                delattr(self ,"__pull_commands_task")
+            if hasattr(self, "_pull_commands_task"):
+                delattr(self ,"_pull_commands_task")
 
 
         except Exception as ex:
-            if not delay:
-                self.amqpc.log.warning(f"actor {self.actor} currently not reachable.")
-            if not hasattr(self, "__pull_commands_task"):
-                self.__pull_commands_task = self.amqpc.loop.create_task(self.__pull_commands(Proxy.__pull_commands_delay))
+            self.amqpc.log.warning(f"actor {self.actor} currently not reachable.")
+            #if not delay:
+                #self.amqpc.log.warning(f"actor {self.actor} currently not reachable.")
+            if not hasattr(self, "_pull_commands_task"):
+                self._pull_commands_task = self.amqpc.loop.create_task(self.__pull_commands(Proxy.pull_commands_delay))
 
 
     def isAmqpcConnected(self):
