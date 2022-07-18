@@ -60,7 +60,7 @@ class Proxy():
         if not self.isAmqpcConnected():
             await self.amqpc.start()
 
-        await self.__pull_commands()
+        await self._pull_commands()
    
         return self
 
@@ -87,7 +87,7 @@ class Proxy():
         #return super(Proxy, self).__getattribute__(attr)
 ##        return self.__getattribute__(attr)
 
-    async def __pull_commands(self, delay = 0):
+    async def _pull_commands(self, delay = 0):
 
         try:
             await asyncio.sleep(delay)
@@ -109,7 +109,7 @@ class Proxy():
             #if not delay:
                 #self.amqpc.log.warning(f"actor {self.actor} currently not reachable.")
             if not hasattr(self, "_pull_commands_task"):
-                self._pull_commands_task = self.amqpc.loop.create_task(self.__pull_commands(Proxy.pull_commands_delay))
+                self._pull_commands_task = self.amqpc.loop.create_task(self._pull_commands(Proxy.pull_commands_delay))
 
 
     def isAmqpcConnected(self):
