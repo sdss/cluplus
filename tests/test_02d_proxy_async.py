@@ -41,7 +41,7 @@ async def test_proxy_async_delayed(event_loop):
     for i in range(17):
         if not hasattr(proxy, "_pull_commands_task"):
             break
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.2)
     assert(not hasattr(proxy, "_pull_commands_task"))
 
     await proxy.help()
