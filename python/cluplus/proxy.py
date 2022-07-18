@@ -68,9 +68,7 @@ class Proxy():
 
     async def stop(self):
         """stop actor"""
-        if hasattr(self, "_pull_commands_task"):
-            self._pull_commands_task.cancel()
-            delattr(self ,"_pull_commands_task")
+        await self.__delattr_pull_commands_task(cancel=True)
 
     @staticmethod
     def setDefaultAmqpc(amqpc):
@@ -88,6 +86,15 @@ class Proxy():
         #return super(Proxy, self).__getattribute__(attr)
 ##        return self.__getattribute__(attr)
 
+    async def __delattr_pull_commands_task(self, cancel=False):
+        lock = asyncio.Lock()
+        async with lock:
+            if hasattr(self, "_pull_commands_task"):
+                if cancel:
+                    self._pull_commands_task.cancel()
+                delattr(self ,"_pull_commands_task")
+        
+
     async def _pull_commands(self, delay = 0, attempts = 1):
         for c in range(attempts):
             try:
@@ -101,9 +108,7 @@ class Proxy():
                     setattr(self, c, partial(self.call_command, c))
                     # setattr(self, f"nowait_{c}", partial(self.call_command, c, nowait=True))
 
-                if hasattr(self, "_pull_commands_task"):
-                    delattr(self ,"_pull_commands_task")
- 
+                await self.__delattr_pull_commands_task()
                 return
 
             except Exception as ex:
@@ -112,12 +117,10 @@ class Proxy():
                 if not hasattr(self, "_pull_commands_task"):
                     self.amqpc.log.debug(f"attempt delayed connection as background task.")
                     self._pull_commands_task = self.amqpc.loop.create_task(self._pull_commands(Proxy.pull_commands_delay, Proxy.pull_commands_attempts))
-                    
                 return
 
         self.amqpc.log.debug(f"stop delayed connection as background task.")
-        if hasattr(self, "_pull_commands_task"):
-            delattr(self ,"_pull_commands_task")
+        await self.__delattr_pull_commands_task()
 
 
     def isAmqpcConnected(self):
