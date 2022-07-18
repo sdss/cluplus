@@ -18,7 +18,7 @@ import pytest_asyncio
 
 from proto.actor.actor import ProtoActor
 
-@pytest_asyncio.fixture(scope="session")
+@pytest.fixture(scope="session")
 def event_loop():
     return asyncio.get_event_loop()
 

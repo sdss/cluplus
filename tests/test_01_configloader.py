@@ -9,6 +9,7 @@
 import os
 import pytest
 
+
 # from clu import JSONActor
 from clu import AMQPActor
 from cluplus.configloader import Loader

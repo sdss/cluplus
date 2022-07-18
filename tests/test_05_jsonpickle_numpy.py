@@ -7,6 +7,8 @@
 
 
 import pytest
+import pytest_asyncio
+
 import asyncio
 import logging
 import uuid
@@ -22,7 +24,7 @@ from proto.actor.actor import ProtoActor
 import numpy as np
 
 
-@pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session")
 async def amqp_client(proto_test_actor, event_loop):
 
     client = AMQPClient(name=f"{proto_test_actor.name}_client-{uuid.uuid4().hex[:8]}")

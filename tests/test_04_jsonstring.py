@@ -8,9 +8,11 @@
 
 
 import pytest
-import asyncio
+import pytest_asyncio
+
 import logging
 import uuid
+import asyncio
 
 from clu import AMQPClient, CommandStatus
 
@@ -22,7 +24,7 @@ from proto.actor.actor import ProtoActor
 from proto.actor.commands.complex_data_with_jsonstring import fits_dict, list_data, dict_data, mixed_data
 
 
-@pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session")
 async def amqp_client(proto_test_actor, event_loop):
 
     client = AMQPClient(name=f"{proto_test_actor.name}_client-{uuid.uuid4().hex[:8]}")

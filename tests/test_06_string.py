@@ -7,6 +7,8 @@
 
 
 import pytest
+import pytest_asyncio
+
 import asyncio
 import logging
 import uuid
@@ -21,7 +23,7 @@ from proto.actor.actor import ProtoActor
 
 import hashlib
 
-@pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session")
 async def amqp_client(proto_test_actor, event_loop):
 
     client = AMQPClient(name=f"{proto_test_actor.name}_client-{uuid.uuid4().hex[:8]}")
@@ -32,7 +34,7 @@ async def amqp_client(proto_test_actor, event_loop):
     await client.stop()
 
 
-@pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session")
 async def proto_proxy(amqp_client, proto_test_actor):
 
     proxy = Proxy(proto_test_actor.name, amqpc=amqp_client)
