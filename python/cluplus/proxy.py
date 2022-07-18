@@ -110,7 +110,14 @@ class Proxy():
                 if not delay:
                     self.amqpc.log.warning(f"actor {self.actor} currently not reachable.")
                 if not hasattr(self, "_pull_commands_task"):
+                    self.amqpc.log.debug(f"attempt delayed connection as background task.")
                     self._pull_commands_task = self.amqpc.loop.create_task(self._pull_commands(Proxy.pull_commands_delay, Proxy.pull_commands_attempts))
+                    
+                return
+
+        self.amqpc.log.debug(f"stop delayed connection as background task.")
+        if hasattr(self, "_pull_commands_task"):
+            delattr(self ,"_pull_commands_task")
 
 
     def isAmqpcConnected(self):
