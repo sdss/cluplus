@@ -105,9 +105,8 @@ class Proxy():
 
 
         except Exception as ex:
-            self.amqpc.log.warning(f"actor {self.actor} currently not reachable.")
-            #if not delay:
-                #self.amqpc.log.warning(f"actor {self.actor} currently not reachable.")
+            if not delay:
+                self.amqpc.log.warning(f"actor {self.actor} currently not reachable.")
             if not hasattr(self, "_pull_commands_task"):
                 self._pull_commands_task = self.amqpc.loop.create_task(self._pull_commands(Proxy.pull_commands_delay))
 
