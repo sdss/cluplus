@@ -7,10 +7,11 @@
 
 
 import pytest
+import pytest_asyncio
+
 import asyncio
 import logging
 import uuid
-from time import sleep
 
 from clu import AMQPClient, CommandStatus
 
@@ -19,15 +20,15 @@ from cluplus.proxy import Proxy
 
 from proto.actor.actor import ProtoActor
 
+
 @pytest.mark.asyncio
 async def test_proxy_async_delayed(event_loop):
 
     Proxy.pull_commands_delay = 0.1
+    actor_delayed = ProtoActor(name=f"proto_test_delayed-{uuid.uuid4().hex[:8]}")
 
-    actor = ProtoActor(name=f"proto_delayed-{uuid.uuid4().hex[:8]}")
-
-    proxy = await Proxy(actor.name).start()
-    await asyncio.sleep(0.3)
+    proxy = await Proxy(actor_delayed.name).start()
+    await asyncio.sleep(0.2)
 
     assert(hasattr(proxy, "_pull_commands_task"))
 
@@ -37,7 +38,7 @@ async def test_proxy_async_delayed(event_loop):
     await proxy.start()
     assert(hasattr(proxy, "_pull_commands_task"))
     
-    await actor.start()
+    await actor_delayed.start()
     for i in range(17):
         if not hasattr(proxy, "_pull_commands_task"):
             break
@@ -47,7 +48,21 @@ async def test_proxy_async_delayed(event_loop):
     await proxy.help()
 
     await proxy.stop()
+    await actor_delayed.stop()
 
-    await actor.stop()
-    
-    await asyncio.sleep(1)
+
+@pytest.mark.asyncio
+async def test_proxy_async_delay_timeout(event_loop):
+
+    Proxy.pull_commands_delay = 0.01
+    Proxy.pull_commands_attempts = 2
+    actor_delayed = ProtoActor(name=f"proto_test_delayed-{uuid.uuid4().hex[:8]}")
+
+    proxy = await Proxy(actor_delayed.name).start()
+    await asyncio.sleep(0.5)
+
+    assert(not hasattr(proxy, "_pull_commands_task"))
+
+    await actor_delayed.stop()
+
+

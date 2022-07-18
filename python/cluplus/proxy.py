@@ -92,7 +92,10 @@ class Proxy():
             if hasattr(self, "_pull_commands_task"):
                 if cancel:
                     self._pull_commands_task.cancel()
-                    await self._pull_commands_task
+                    try:
+                        await self._pull_commands_task
+                    except asyncio.exceptions.CancelledError as ex:
+                        self.amqpc.log.debug(f"error {ex}")
                 delattr(self ,"_pull_commands_task")
         
 
@@ -112,13 +115,14 @@ class Proxy():
                 await self.__delattr_pull_commands_task()
                 return
 
+
             except Exception as ex:
                 if not delay:
                     self.amqpc.log.warning(f"actor {self.actor} currently not reachable.")
                 if not hasattr(self, "_pull_commands_task"):
                     self.amqpc.log.debug(f"attempt delayed connection as background task.")
                     self._pull_commands_task = self.amqpc.loop.create_task(self._pull_commands(Proxy.pull_commands_delay, Proxy.pull_commands_attempts))
-                return
+                    return    
 
         self.amqpc.log.debug(f"stop delayed connection as background task.")
         await self.__delattr_pull_commands_task()
