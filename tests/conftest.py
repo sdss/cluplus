@@ -14,15 +14,16 @@ import asyncio
 import uuid
 
 import pytest
+import pytest_asyncio
 
 from proto.actor.actor import ProtoActor
 
-@pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session")
 def event_loop():
     return asyncio.get_event_loop()
 
 
-@pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session")
 async def proto_test_actor(event_loop):
 
     actor = ProtoActor(name=f"proto_test-{uuid.uuid4().hex[:8]}")

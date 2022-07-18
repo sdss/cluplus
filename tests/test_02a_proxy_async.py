@@ -7,6 +7,7 @@
 
 
 import pytest
+import pytest_asyncio
 import asyncio
 import logging
 import uuid
@@ -18,7 +19,7 @@ from cluplus import __version__
 from cluplus.proxy import Proxy, invoke, unpack
 
 
-@pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session")
 async def async_amqp_client(proto_test_actor):
 
     client = AMQPClient(name=f"{proto_test_actor.name}_client-{uuid.uuid4().hex[:8]}")
@@ -29,7 +30,7 @@ async def async_amqp_client(proto_test_actor):
     await client.stop()
 
 
-@pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session")
 async def async_proto_proxy(async_amqp_client, proto_test_actor):
 
     proxy = Proxy(proto_test_actor.name, amqpc=async_amqp_client)
