@@ -69,7 +69,6 @@ class Proxy():
     async def stop(self):
         """stop actor"""
         if hasattr(self, "_pull_commands_task"):
-            self.amqpc.log.warning(f"pct {self._pull_commands_task}")
             self._pull_commands_task.cancel()
             delattr(self ,"_pull_commands_task")
 
