@@ -92,6 +92,7 @@ class Proxy():
             if hasattr(self, "_pull_commands_task"):
                 if cancel:
                     self._pull_commands_task.cancel()
+                    await self._pull_commands_task
                 delattr(self ,"_pull_commands_task")
         
 
