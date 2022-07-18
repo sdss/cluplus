@@ -84,7 +84,7 @@ testpaths = [
 
 [tool.coverage.run]
 branch = true
-include = ["python/cluplus/*"]
+#include = ["python/cluplus/*"]
 omit = [
     "*/__init__.py",
 ]

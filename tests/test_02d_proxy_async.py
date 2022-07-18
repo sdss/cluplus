@@ -38,7 +38,7 @@ async def test_proxy_async_delayed(event_loop):
     assert(hasattr(proxy, "_pull_commands_task"))
     
     await actor.start()
-    for i in range(7):
+    for i in range(17):
         if not hasattr(proxy, "_pull_commands_task"):
             break
         await asyncio.sleep(0.1)
