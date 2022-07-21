@@ -35,6 +35,7 @@ class Proxy():
    
     __commands = "__commands"
     __commands_key = "help"
+    __pull_commands_task = "_pull_commands_task"
     
     __amqpc = None
 
@@ -76,7 +77,7 @@ class Proxy():
 
     def __getattr__(self, attr):
         # order is important !
-        if attr != "_pull_commands_task" and hasattr(self, "_pull_commands_task"):
+        if attr != Proxy.__pull_commands_task and hasattr(self, Proxy.__pull_commands_task):
             return partial(self.call_command, attr)
         return super(Proxy, self).__getattribute__(attr)
 
@@ -84,14 +85,14 @@ class Proxy():
     async def __delattr_pull_commands_task(self, cancel=False):
         lock = asyncio.Lock()
         async with lock:
-            if hasattr(self, "_pull_commands_task"):
+            if hasattr(self, Proxy.__pull_commands_task):
                 if cancel:
                     self._pull_commands_task.cancel()
                     try:
                         await self._pull_commands_task
                     except asyncio.exceptions.CancelledError as ex:
                         self.amqpc.log.debug(f"error {ex}")
-                delattr(self ,"_pull_commands_task")
+                delattr(self ,Proxy.__pull_commands_task)
         
 
     async def _pull_commands(self, delay = 0, attempts = 1):
@@ -114,7 +115,7 @@ class Proxy():
             except Exception as ex:
                 if not delay:
                     self.amqpc.log.warning(f"actor {self.actor} currently not reachable.")
-                if not hasattr(self, "_pull_commands_task"):
+                if not hasattr(self, Proxy.__pull_commands_task):
                     self.amqpc.log.debug(f"actor {self.actor} connect as background task.")
                     self._pull_commands_task = self.amqpc.loop.create_task(self._pull_commands(Proxy.pull_commands_delay, Proxy.pull_commands_attempts))
                     return    
