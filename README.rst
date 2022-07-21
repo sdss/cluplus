@@ -39,7 +39,7 @@ Next, head to the `Getting started <https://github.com/sdss/cluplus/wiki>`__ sec
     :alt: Build Status
     :target: https://github.com/sdss/cluplus/actions
 
-.. |Coverage Status| image:: https://codecov.io/gh/sdss/cluplus/branch/master/graph/badge.svg?token=i5SpR0OjLe&branch=main&kill_cache=1
+.. |Coverage Status| image:: https://codecov.io/gh/sdss/cluplus/branch/main/graph/badge.svg?token=i5SpR0OjLe
     :alt: Coverage Status
     :target: https://codecov.io/gh/sdss/cluplus
 
