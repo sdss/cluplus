@@ -49,4 +49,3 @@ async def test_proxy_async_single_basic(proto_test_actor):
     pytest.fail("... should not have reached this point")
 
 
-    

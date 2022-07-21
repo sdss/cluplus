@@ -75,16 +75,11 @@ class Proxy():
         Proxy.__amqpc = amqpc
 
     def __getattr__(self, attr):
-        if attr != "_pull_commands_task":
-            try:
-                super(Proxy, self).__getattribute__("ping")
-
-            except AttributeError:
-                self.amqpc.log.warning(f"actor {self.actor} {attr} currently not reachable.")
-#                setattr(self, attr, partial(self.call_command, attr))
-                return partial(self.call_command, attr)
-
+        # order is important !
+        if attr != "_pull_commands_task" and hasattr(self, "_pull_commands_task"):
+            return partial(self.call_command, attr)
         return super(Proxy, self).__getattribute__(attr)
+
 
     async def __delattr_pull_commands_task(self, cancel=False):
         lock = asyncio.Lock()

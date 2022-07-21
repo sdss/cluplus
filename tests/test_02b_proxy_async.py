@@ -81,6 +81,22 @@ async def test_proxy_async_multiple_unpack(async_proto_proxy):
 
 
 @pytest.mark.asyncio
+async def test_proxy_async_attributerror_on_connection(async_proto_proxy):
+
+    try:
+        await async_proto_proxy.doesnt_exist()
+       
+    except AttributeError as ex:
+        return
+
+    except Exception as ex:
+        pytest.fail(f"... expected AttributeError, got {type(ex)}")
+        return
+
+    pytest.fail("... should not have reached this point")
+
+
+@pytest.mark.asyncio
 async def test_proxy_async_exception_single_command(async_proto_proxy):
 
     from proto.actor.exceptions import ProtoActorAPIError
