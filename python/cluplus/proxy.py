@@ -85,7 +85,6 @@ class Proxy():
                 return partial(self.call_command, attr)
 
         return super(Proxy, self).__getattribute__(attr)
-#        return self.__getattribute__(attr)
 
     async def __delattr_pull_commands_task(self, cancel=False):
         lock = asyncio.Lock()
