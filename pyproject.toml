@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sdss-cluplus"
-version = "0.2.11"
+version = "0.2.12"
 description = "Additional functionality for sdss-clu"
 authors = ["Florian Briegel <briegel@mpia.de>"]
 license = "BSD-3-Clause"
