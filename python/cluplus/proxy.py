@@ -206,7 +206,7 @@ async def invoke(*cmds, return_exceptions:Bool=False):
     return ret
 
 
-def unpack(ret, *keys):
+def unpack(data, *keys):
     """ unpacks every parameter from the message of the finish reply or list of replies.
 
         Pythons list unpacking mechanism PEP3132 can be used to assign the value(s)
@@ -239,26 +239,27 @@ def unpack(ret, *keys):
         return only the parameters from keys
     """
 
-    if len(ret) == 0:
+    if len(data) == 0:
         return
     
-    if isinstance(ret, list):
+    if isinstance(data, list):
         if len(keys) > 0:
-            rkeys = [k for r in ret for k in list(r.keys())]
+            rkeys = [k for r in data for k in list(r.keys())]
             bkeys = [k for k in keys if k not in rkeys]
             if bkeys:
                 raise KeyError(bkeys)
 
-            return [d[k] for d in ret for k in keys if k in d]
+            flt_data = [d[k] for d in data for k in keys if k in d]
+            return flt_data if len(flt_data) > 1 else flt_data[0]
         else:
-            return [val for d in ret for val in list(d.values())]
+            return [val for d in data for val in list(d.values())] if len(data) > 1 else data[0]
 
-    if len(ret) == 1:
-        return list(ret.values())[0]
+    if len(data) == 1:
+        return list(data.values())[0]
     elif len(keys) > 0:
-        return [ret[k] for k in keys]
-    else:
-        return list(ret.values())
+        flt_data = [data[k] for k in keys]
+        return flt_data if len(flt_data) > 1 else flt_data[0]
+    return list(data.values())
 
 
 def flatten(d: MutableMapping, parent_key: str = '', sep: str = '.'):

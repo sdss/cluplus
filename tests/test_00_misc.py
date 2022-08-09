@@ -37,6 +37,11 @@ def test_proxy_null_unpack():
     
 def test_proxy_single_unpack():
 
+    data = {'a': 1}
+
+    assert(unpack(data) == 1)
+    assert(unpack(data, 'a') == 1)
+
     data = {'a': 1, 'b': 2, 'c': 3, 'd': 4}
 
     a, b, c, d = unpack(data)
@@ -52,7 +57,15 @@ def test_proxy_single_unpack():
     a, c = unpack(data, 'a', 'c')
     assert(a == 1)
     assert(c == 3)
-    
+
+    c, a = unpack(data, 'c', 'a')
+    assert(a == 1)
+    assert(c == 3)
+
+    d = unpack(data, 'd')
+    assert(d == 4)
+    assert(unpack(data, 'b') == 2)
+
     data = ProxyDict(data)
 
     a, b, c, d = data.unpack()
@@ -65,6 +78,11 @@ def test_proxy_single_unpack():
     assert(a == 1)
     assert(c == 3)
     
+    #c = data.unpack('c')
+    #assert(c == 3)
+    
+   
+
 
 def test_proxy_mult_unpack():
 
