@@ -134,6 +134,11 @@ def test_proxy_wildcard_unpack():
     assert(a == ["/bla", "/foo", "/bar"])
 
 
+    data = [{"east.filename": "/bla", "kkk": 2, "west.filename": "/foo", "jjj": 3}, {"north.filename": "/bar"}]
+
+    a = unpack(data, '*.filename')
+    assert(a == ["/bla", "/foo", "/bar"])
+
 def test_proxy_flatten():
     data = {'a': 1, 'b': 2, 'e': {'c': 3, 'd': 4, 'e': 8}}
     assert(flatten(data) == {'a': 1, 'b': 2, 'e.c': 3, 'e.d': 4, 'e.e': 8})
