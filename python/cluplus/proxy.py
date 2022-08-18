@@ -11,6 +11,8 @@ from __future__ import annotations
 import sys
 import uuid
 import os
+import fnmatch
+
 import asyncio
 from os.path import basename
 from socket import gethostname
@@ -241,15 +243,15 @@ def unpack(data, *keys):
 
     if len(data) == 0:
         return
-    
+
     if isinstance(data, list):
         if len(keys) > 0:
             rkeys = [k for r in data for k in list(r.keys())]
-            bkeys = [k for k in keys if k not in rkeys]
+            bkeys = [k for k in keys if not fnmatch.filter(rkeys, k)]
             if bkeys:
                 raise KeyError(bkeys)
 
-            flt_data = [d[k] for d in data for k in keys if k in d]
+            flt_data = [d[fn] for k in keys for d in data for fn in fnmatch.filter(d, k)] #[d[k] for d in data for k in keys if k in d]
             return flt_data if len(flt_data) > 1 else flt_data[0]
         else:
             return [val for d in data for val in list(d.values())] if len(data) > 1 else data[0]
@@ -257,7 +259,7 @@ def unpack(data, *keys):
     if len(data) == 1:
         return list(data.values())[0]
     elif len(keys) > 0:
-        flt_data = [data[k] for k in keys]
+        flt_data = [data[fn] for k in keys for fn in fnmatch.filter(data, k)] #[data[k] for k in keys]
         return flt_data if len(flt_data) > 1 else flt_data[0]
     return list(data.values())
 
