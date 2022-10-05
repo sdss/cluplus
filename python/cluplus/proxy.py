@@ -136,6 +136,7 @@ class Proxy():
                            command: str,
                            *args,
                            callback: Optional[Callable[[AMQPReply], None]] = None,
+                           time_limit: Optional[float] = 42.0,
                            nowait:Bool = False,
                            object_hook: Optional[Callable[[AMQPReply], None]] = None,
                            **kwargs):
@@ -152,7 +153,8 @@ class Proxy():
         fu = await self.amqpc.send_command(self.actor,
                                                 command,
                                                 *args,
-                                                callback=callback)
+                                                callback=callback,
+                                                time_limit=time_limit)
         
         if nowait: return fu
 
