@@ -30,6 +30,16 @@ from clu import AMQPClient, AMQPReply, BaseClient
 
 from .exceptions import ProxyPartialInvokeException, ProxyActorIsNotReachableException
 
+class Client(AMQPClient):
+    """An amqpc client with enviroment support.
+    """
+    def __init__(self, **kwargs):
+        """ init """
+
+        kwargs = {"url": os.getenv("RMQ_URL", None), "host": os.getenv("RMQ_HOST", "localhost"), **kwargs}
+        name = f"{gethostname()}_{basename(sys.argv[0])}-{uuid.uuid4().hex[:8]}"
+        AMQPClient.__init__(self, name=name, **kwargs)
+
 
 class Proxy():
     """A proxy client with actor commands.
@@ -49,17 +59,15 @@ class Proxy():
 
         self.actor = actor
         self.amqpc = amqpc
-        self.kwargs = {"url": os.getenv("RMQ_URL", None), "host": os.getenv("RMQ_HOST", "localhost"), **kwargs}
- 
-    async def start(self):
-        """Query and set actor commands."""
 
         if not self.amqpc:
             if Proxy.__amqpc:
                 self.amqpc = Proxy.__amqpc
             else:
-                self.amqpc = Proxy.__amqpc = AMQPClient(name=f"{gethostname()}_{basename(sys.argv[0])}-{uuid.uuid4().hex[:8]}", **self.kwargs)
-                delattr(self ,"kwargs")
+                self.amqpc = Proxy.__amqpc = Client(**kwargs)
+
+    async def start(self):
+        """Query and set actor commands."""
 
         if not self.isAmqpcConnected():
             await self.amqpc.start()
