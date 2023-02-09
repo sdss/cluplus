@@ -163,6 +163,7 @@ class Proxy():
                            callback: Optional[Callable[[dict], None]] = None,
                            time_limit: Optional[float] = 42.0,
                            nowait:Bool = False,
+                           nosync:Bool = False,
                            object_hook: Optional[Callable[[AMQPReply], None]] = None,
                            **kwargs):
 
@@ -183,6 +184,7 @@ class Proxy():
         
 
 
+        if nosync: return
         if nowait: return self._handle_command_reply(fu)
 
         return await self._handle_command_reply(fu)

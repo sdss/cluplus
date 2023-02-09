@@ -57,9 +57,19 @@ async def test_proxy_async_single_callback(async_proto_proxy):
     def callback(reply):
         if reply.command_status == CommandStatus.DONE:
              assert (reply == {'enable': True, 'axis0': True, 'axis1': True} )
-    
+
     assert (await async_proto_proxy.setEnabled(True, callback=callback) == {'enable': True, 'axis0': True, 'axis1': True} )
 
+@pytest.mark.asyncio
+async def test_proxy_async_single_oneway(async_proto_proxy):
+
+    def callback(reply):
+        if reply.command_status == CommandStatus.DONE:
+             assert (reply == {'enable': True, 'axis0': True, 'axis1': True} )
+
+    await async_proto_proxy.setEnabled(True, nosync=True, callback=callback)
+    import asyncio
+    await asyncio.sleep(1)
 
 @pytest.mark.asyncio
 async def test_proxy_async_single_unpack(async_proto_proxy):
