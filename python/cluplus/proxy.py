@@ -154,6 +154,7 @@ class Proxy():
     def _handle_callback(self, callback: Optional[Callable[[AMQPReply], None]], reply: AMQPReply):
         msg = ProxyDict(json.loads(reply.message.body))
         msg.command_status = CommandStatus.code_to_status(reply.message_code)
+        msg.sender = reply.sender
         callback(msg)
 
     async def call_command(self,
