@@ -26,7 +26,7 @@ from shlex import quote
 import json
 
 from inspect import getcoroutinelocals, iscoroutine
-from clu import AMQPClient, AMQPReply, BaseClient
+from clu import AMQPClient, AMQPReply, BaseClient, CommandStatus
 
 from .exceptions import ProxyPartialInvokeException, ProxyActorIsNotReachableException
 
@@ -151,10 +151,15 @@ class Proxy():
         return ProxyDict(ret.replies[-1].message)
 
 
+    def _handle_callback(self, callback: Optional[Callable[[AMQPReply], None]], reply: AMQPReply):
+        msg = ProxyDict(json.loads(reply.message.body))
+        msg.command_status = CommandStatus.code_to_status(reply.message_code)
+        callback(msg)
+
     async def call_command(self,
                            command: str,
                            *args,
-                           callback: Optional[Callable[[AMQPReply], None]] = None,
+                           callback: Optional[Callable[[dict], None]] = None,
                            time_limit: Optional[float] = 42.0,
                            nowait:Bool = False,
                            object_hook: Optional[Callable[[AMQPReply], None]] = None,
@@ -172,7 +177,7 @@ class Proxy():
         fu = await self.amqpc.send_command(self.actor,
                                                 command,
                                                 *args,
-                                                callback=callback,
+                                                callback=partial(self._handle_callback, callback) if callback else None,
                                                 time_limit=time_limit)
         
 
