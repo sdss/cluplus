@@ -140,6 +140,17 @@ class Proxy():
         return not self.amqpc.connection.connection.is_closed
 
 
+
+    async def _handle_command_reply(self, fu):
+
+        ret = await fu
+
+        if hasattr(ret, "status") and ret.status.did_fail:
+            raise self._errorMapToException(ret.replies[-1].message['error'])
+
+        return ProxyDict(ret.replies[-1].message)
+
+
     async def call_command(self,
                            command: str,
                            *args,
@@ -164,14 +175,12 @@ class Proxy():
                                                 callback=callback,
                                                 time_limit=time_limit)
         
-        if nowait: return fu
 
-        ret = await fu
 
-        if hasattr(ret, "status") and ret.status.did_fail:
-            raise self._errorMapToException(ret.replies[-1].message['error'])
+        if nowait: return self._handle_command_reply(fu)
 
-        return ProxyDict(ret.replies[-1].message)
+        return await self._handle_command_reply(fu)
+
 
     @staticmethod
     def _errorMapToException(em):

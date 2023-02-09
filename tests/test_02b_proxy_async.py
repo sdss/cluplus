@@ -164,7 +164,7 @@ async def test_proxy_async_multiple_nowait(async_proto_proxy):
     rc1 = await fu1
     rc2 = await fu2
     
-    a, a0, a1, *c = unpack([rc1.replies[-1].message, rc2.replies[-1].message])
+    a, a0, a1, *c = unpack([rc1, rc2])
 
     assert ([a, a0, a1, c] == [True, True, True, [10.0, 20.0]])
 
