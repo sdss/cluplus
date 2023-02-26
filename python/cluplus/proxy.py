@@ -143,13 +143,15 @@ class Proxy():
 
     async def _handle_command_reply(self, fu):
 
-        ret = await fu
+        reply = await fu
 
-        if hasattr(ret, "status") and ret.status.did_fail:
-            raise self._errorMapToException(ret.replies[-1].message['error'])
+        if hasattr(reply, "status") and reply.status.did_fail:
+            raise self._errorMapToException(reply.replies[-1].message['error'])
 
-        return ProxyDict(ret.replies[-1].message)
+        msg = ProxyDict(reply.replies[-1].message)
+        msg.sender = reply.actor
 
+        return msg
 
     def _handle_callback(self, callback: Optional[Callable[[AMQPReply], None]], reply: AMQPReply):
         msg = ProxyDict(json.loads(reply.message.body))
@@ -226,12 +228,15 @@ async def invoke(*cmds, return_exceptions:Bool=False):
     
     ret = await asyncio.gather(*cmds, return_exceptions=True)
 
-    ret = ProxyListOfDicts([ProxyDict(r) if isinstance(r, dict) else r for r in ret])
+    ret = ProxyListOfDicts([ProxyDict(r) if isinstance(r, dict) else ProxyDict({'error': r}) for r in ret])
+    ret.actors = cmds
+
 
     if not return_exceptions:
         for r in ret:
-            if isinstance(r, Exception):
+            if "error" in r.keys():
                 raise ProxyPartialInvokeException(*ret)
+
     return ret
 
 
@@ -306,6 +311,7 @@ def flatten(d: MutableMapping, parent_key: str = '', sep: str = '.'):
 
 class ProxyDict(dict):
    """ Extra helper class for the reply dict """
+
    def flatten(self):
         return flatten(self)
 

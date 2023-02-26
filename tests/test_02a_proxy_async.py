@@ -132,7 +132,7 @@ async def test_proxy_async_exception_multiple_invoke(async_proto_proxy):
         ping, version, errPassAsError = ex.args
         assert(ping['text'] == 'Pong.')
         assert(version['version'] != '?')
-        assert(isinstance(errPassAsError, ProtoActorAPIError))
+        assert(isinstance(errPassAsError['error'], ProtoActorAPIError))
         return
 
     pytest.fail("... should not have reached this point")
@@ -153,7 +153,7 @@ async def test_proxy_async_exception_multiple_invoke_return_exceptions(async_pro
 
         assert(ping['text'] == 'Pong.')
         assert(version['version'] != '?')
-        assert(isinstance(errPassAsError, ProtoActorAPIError))
+        assert(isinstance(errPassAsError['error'], ProtoActorAPIError))
 
     except ProxyPartialInvokeException as ex:
         pytest.fail("... should not have reached this point")
