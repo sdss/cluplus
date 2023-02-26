@@ -228,13 +228,17 @@ async def invoke(*cmds, return_exceptions:Bool=False):
     
     ret = await asyncio.gather(*cmds, return_exceptions=True)
 
-    ret = ProxyListOfDicts([ProxyDict(r) if isinstance(r, dict) else ProxyDict({'error': r}) for r in ret])
-    ret.actors = cmds
+    def _format(r):
+        if isinstance(r, dict): return ProxyDict(r)
+        elif isinstance(r, Exception): return ProxyDict({'error': r}) 
+        else: return r
 
+    ret = ProxyListOfDicts([_format(r) for r in ret])
+    ret.actors = cmds
 
     if not return_exceptions:
         for r in ret:
-            if "error" in r.keys():
+            if isinstance(r, dict) and "error" in r.keys():
                 raise ProxyPartialInvokeException(*ret)
 
     return ret
