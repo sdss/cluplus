@@ -158,6 +158,24 @@ async def test_proxy_async_exception_multiple_invoke_return_exceptions(async_pro
     except ProxyPartialInvokeException as ex:
         pytest.fail("... should not have reached this point")
 
+@pytest.mark.asyncio
+async def test_proxy_async_with_actors(async_proto_proxy):
+
+    from cluplus.exceptions import ProxyPartialInvokeException
+    from proto.actor.exceptions import ProtoActorAPIError
+
+    try:
+        rc = await invoke(
+                     async_proto_proxy.ping(),
+                     async_proto_proxy.version(),
+                     async_proto_proxy.errPassAsError(),
+                     return_exceptions=True)
+        rc_d = rc.with_actors()
+        assert(isinstance(rc_d[async_proto_proxy.actor]['error'], ProtoActorAPIError))
+
+    except ProxyPartialInvokeException as ex:
+        pytest.fail("... should not have reached this point")
+
 
 
 @pytest.mark.asyncio

@@ -179,10 +179,10 @@ class Proxy():
                                         for k, v in kwargs.items()))
 
         fu = await self.amqpc.send_command(self.actor,
-                                                command,
-                                                *args,
-                                                callback=partial(self._handle_callback, callback) if callback else None,
-                                                time_limit=time_limit)
+                                           command,
+                                           *args,
+                                           callback=partial(self._handle_callback, callback) if callback else None,
+                                           time_limit=time_limit)
         
 
 
@@ -226,6 +226,8 @@ async def invoke(*cmds, return_exceptions:Bool=False):
     with an exception and return values for every command.
     """
     
+    actors=[c.cr_frame.f_locals['self'].actor for c in cmds]
+
     ret = await asyncio.gather(*cmds, return_exceptions=True)
 
     def _format(r):
@@ -234,7 +236,7 @@ async def invoke(*cmds, return_exceptions:Bool=False):
         else: return r
 
     ret = ProxyListOfDicts([_format(r) for r in ret])
-    ret.actors = cmds
+    ret.actors = actors
 
     if not return_exceptions:
         for r in ret:
@@ -330,4 +332,7 @@ class ProxyListOfDicts(list):
 
    def unpack(self, *keys):
         return unpack(self, *keys)
+
+   def with_actors(self):
+        return dict(zip(self.actors, self))
 
