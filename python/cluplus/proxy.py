@@ -226,7 +226,10 @@ async def invoke(*cmds, return_exceptions:Bool=False):
     with an exception and return values for every command.
     """
     
-    actors=[c.cr_frame.f_locals['self'].actor for c in cmds]
+    def isProxy(p):
+        return 'self' in p.cr_frame.f_locals and isinstance(p.cr_frame.f_locals['self'], Proxy)
+
+    actors=[c.cr_frame.f_locals['self'].actor if isProxy(c) else 'local' for c in cmds]
 
     ret = await asyncio.gather(*cmds, return_exceptions=True)
 
