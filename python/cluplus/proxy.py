@@ -249,7 +249,7 @@ async def invoke(*cmds, return_exceptions:Bool=False):
     return ret
 
 
-def unpack(data, *keys):
+def unpack(data, *keys, as_seq:bool=False):
     """ unpacks every parameter from the message of the finish reply or list of replies.
 
         Pythons list unpacking mechanism PEP3132 can be used to assign the value(s)
@@ -285,6 +285,10 @@ def unpack(data, *keys):
     if len(data) == 0:
         return
 
+    def unpacking(data:list, as_seq:bool=False):
+        if len(data) > 1 or as_seq: return data
+        return data[0] if len(data) else None
+
     if isinstance(data, list):
         if len(keys) > 0:
             rkeys = [k for r in data for k in list(r.keys())]
@@ -292,16 +296,14 @@ def unpack(data, *keys):
             if bkeys:
                 raise KeyError(bkeys)
 
-            flt_data = [d[fn] for k in keys for d in data for fn in fnmatch.filter(d, k)] #[d[k] for d in data for k in keys if k in d]
-            return flt_data if len(flt_data) > 1 else flt_data[0]
+            return unpacking([d[fn] for k in keys for d in data for fn in fnmatch.filter(d, k)],  as_seq)
         else:
-            return [val for d in data for val in list(d.values())] if len(data) > 1 else data[0]
+            return unpacking([val for d in data for val in list(d.values())], as_seq)
 
     if len(data) == 1:
-        return list(data.values())[0]
+        return unpacking(list(data.values()), as_seq)
     elif len(keys) > 0:
-        flt_data = [data[fn] for k in keys for fn in fnmatch.filter(data, k)] #[data[k] for k in keys]
-        return flt_data if len(flt_data) > 1 else flt_data[0]
+        return unpacking([data[fn] for k in keys for fn in fnmatch.filter(data, k)], as_seq)
     return list(data.values())
 
 
