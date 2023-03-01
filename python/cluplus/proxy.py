@@ -225,7 +225,7 @@ async def invoke(*cmds, return_exceptions:Bool=False):
     On error it throws an exception if one of the commands fails as a dict
     with an exception and return values for every command.
     """
-    
+
     def isProxy(p):
         return 'self' in p.cr_frame.f_locals and isinstance(p.cr_frame.f_locals['self'], Proxy)
 
@@ -326,8 +326,8 @@ class ProxyDict(dict):
    def flatten(self):
         return flatten(self)
 
-   def unpack(self, *keys):
-        return unpack(self, *keys)
+   def unpack(self, *keys, as_seq:bool=False):
+        return unpack(self, *keys, as_seq=as_seq)
 
 
 class ProxyListOfDicts(list):
@@ -335,8 +335,8 @@ class ProxyListOfDicts(list):
    def flatten(self):
         return ProxyListOfDicts([flatten(d) for d in self])
 
-   def unpack(self, *keys):
-        return unpack(self, *keys)
+   def unpack(self, *keys, as_seq:bool=False):
+        return unpack(self, *keys, as_seq=as_seq)
 
    def with_actors(self):
         return dict(zip(self.actors, self))

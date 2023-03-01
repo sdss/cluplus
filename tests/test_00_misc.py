@@ -126,6 +126,14 @@ def test_proxy_mult_unpack():
     assert(e2 == 8)
     
 
+def test_proxy_single_seq_unpack():
+
+    data = {'a': 1}
+
+    assert(unpack(data, as_seq=True) == [1])
+    assert(unpack(data, 'a', as_seq=True) == [1])
+
+
 def test_proxy_wildcard_unpack():
 
     data = {"east.filename": "/bla", "kkk": 2, "west.filename": "/foo", "jjj": 3, "north.filename": "/bar"}

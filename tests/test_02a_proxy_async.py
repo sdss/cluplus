@@ -137,6 +137,17 @@ async def test_proxy_async_exception_multiple_invoke(async_proto_proxy):
 
     pytest.fail("... should not have reached this point")
 
+@pytest.mark.asyncio
+async def test_proxy_general_invoke(async_proto_proxy):
+
+    async def foo(num):
+        return num
+
+    r7, r8 = await invoke(foo(7), foo(8))
+    assert(r7 == 7)
+    assert(r8 == 8)
+
+
 
 @pytest.mark.asyncio
 async def test_proxy_async_exception_multiple_invoke_return_exceptions(async_proto_proxy):
