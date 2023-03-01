@@ -249,7 +249,7 @@ async def invoke(*cmds, return_exceptions:Bool=False):
     return ret
 
 
-def unpack(data, *keys, as_seq:bool=False):
+def unpack(data, *keys, as_seq:bool=False, exception_on_missing_keys:bool=False):
     """ unpacks every parameter from the message of the finish reply or list of replies.
 
         Pythons list unpacking mechanism PEP3132 can be used to assign the value(s)
@@ -292,9 +292,10 @@ def unpack(data, *keys, as_seq:bool=False):
     if isinstance(data, list):
         if len(keys) > 0:
             rkeys = [k for r in data for k in list(r.keys())]
-            bkeys = [k for k in keys if not fnmatch.filter(rkeys, k)]
-            if bkeys:
-                raise KeyError(bkeys)
+            if exception_on_missing_keys:
+                bkeys = [k for k in keys if not fnmatch.filter(rkeys, k)]
+                if bkeys:
+                    raise KeyError(bkeys)
 
             return unpacking([d[fn] for k in keys for d in data for fn in fnmatch.filter(d, k)],  as_seq)
         else:
@@ -326,8 +327,8 @@ class ProxyDict(dict):
    def flatten(self):
         return flatten(self)
 
-   def unpack(self, *keys, as_seq:bool=False):
-        return unpack(self, *keys, as_seq=as_seq)
+   def unpack(self, *keys, as_seq:bool=False, exception_on_missing_keys:bool=False):
+        return unpack(self, *keys, as_seq=as_seq, exception_on_missing_keys=exception_on_missing_keys)
 
 
 class ProxyListOfDicts(list):
@@ -335,8 +336,8 @@ class ProxyListOfDicts(list):
    def flatten(self):
         return ProxyListOfDicts([flatten(d) for d in self])
 
-   def unpack(self, *keys, as_seq:bool=False):
-        return unpack(self, *keys, as_seq=as_seq)
+   def unpack(self, *keys, as_seq:bool=False, exception_on_missing_keys:bool=False):
+        return unpack(self, *keys, as_seq=as_seq, exception_on_missing_keys=exception_on_missing_keys)
 
    def with_actors(self):
         return dict(zip(self.actors, self))

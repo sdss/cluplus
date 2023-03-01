@@ -106,14 +106,6 @@ def test_proxy_mult_unpack():
     assert(e1 == 7)
     assert(e2 == 8)
     
-    try:
-        e2 = unpack(data, 'f')
-
-    except KeyError as ex:
-        assert(ex.args[0] == ['f'])
-
-    except Exception as ex:
-        pytest.fail(f"... should not have reached this point {ex}")
 
     data = ProxyListOfDicts(data)
         
@@ -125,6 +117,24 @@ def test_proxy_mult_unpack():
     assert(e1 == 7)
     assert(e2 == 8)
     
+
+def test_proxy_exception_or_not_on_missing_key_unpack():
+
+    data =  [{'a': 1, 'b': 2, 'e': 7}, {'c': 3, 'd': 4, 'e': 8}]
+
+    c = unpack(data, 'c', 'f')
+    assert(c == 3)
+
+    try:
+        e2 = unpack(data, 'a', 'f', exception_on_missing_keys=True)
+
+    except KeyError as ex:
+        assert(ex.args[0] == ['f'])
+        return
+
+    pytest.fail(f"... should not have reached this point")
+
+
 
 def test_proxy_single_seq_unpack():
 
