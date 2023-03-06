@@ -126,6 +126,10 @@ def test_proxy_exception_or_not_on_missing_key_unpack():
     c = unpack(data, 'c', 'f')
     assert(c == 3)
 
+    c = unpack(data, 'c', exception_on_missing_keys=True)
+    assert(c == 3)
+
+
     try:
         e2 = unpack(data, 'a', 'f', exception_on_missing_keys=True)
 
