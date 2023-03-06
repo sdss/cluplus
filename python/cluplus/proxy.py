@@ -28,7 +28,7 @@ import json
 from inspect import getcoroutinelocals, iscoroutine
 from clu import AMQPClient, AMQPReply, BaseClient, CommandStatus
 
-from .exceptions import ProxyPartialInvokeException, ProxyActorIsNotReachableException
+from .exceptions import ProxyPartialInvokeException, ProxyActorIsNotReachableException, ProxyUnpackKeysNotAllFoundException
 
 class Client(AMQPClient):
     """An amqpc client with enviroment support.
@@ -295,7 +295,7 @@ def unpack(data, *keys, as_seq:bool=False, exception_on_missing_keys:bool=False)
             if exception_on_missing_keys:
                 bkeys = [k for k in keys if not fnmatch.filter(rkeys, k)]
                 if bkeys:
-                    raise KeyError(bkeys)
+                    raise ProxyUnpackKeysNotAllFoundException(bkeys)
 
             return unpacking([d[fn] for k in keys for d in data for fn in fnmatch.filter(d, k)],  as_seq)
         else:

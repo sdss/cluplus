@@ -14,6 +14,7 @@ from clu import AMQPClient, CommandStatus
 
 from cluplus import __version__
 from cluplus.proxy import Proxy, unpack, flatten, ProxyDict, ProxyListOfDicts
+from cluplus.exceptions import ProxyUnpackKeysNotAllFoundException
 
 from proto.actor.actor import ProtoActor
 
@@ -128,7 +129,7 @@ def test_proxy_exception_or_not_on_missing_key_unpack():
     try:
         e2 = unpack(data, 'a', 'f', exception_on_missing_keys=True)
 
-    except KeyError as ex:
+    except ProxyUnpackKeysNotAllFoundException as ex:
         assert(ex.args[0] == ['f'])
         return
 

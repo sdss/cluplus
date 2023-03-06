@@ -21,3 +21,8 @@ class ProxyActorIsNotReachableException(ProxyException):
     """The actor is not reachable"""
 
     pass
+
+class ProxyUnpackKeysNotAllFoundException(ProxyException):
+    """More than one provided unpack filter keys not found"""
+
+    pass
