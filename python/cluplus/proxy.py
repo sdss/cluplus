@@ -66,8 +66,13 @@ class Proxy():
             else:
                 self.amqpc = Proxy.__amqpc = Client(**kwargs)
 
-    async def start(self):
+    async def start(self, amqpc:BaseClient = None):
         """Query and set actor commands."""
+
+        if amqpc:
+            if self.amqpc:
+                await self.amqpc.stop()
+            self.amqpc = amqpc
 
         if not self.isAmqpcConnected():
             await self.amqpc.start()
@@ -80,6 +85,10 @@ class Proxy():
     async def stop(self):
         """stop actor"""
         await self.__delattr_pull_commands_task(cancel=True)
+
+    @staticmethod
+    def getDefaultAmqpc():
+        return Proxy.__amqpc
 
     @staticmethod
     def setDefaultAmqpc(amqpc):
