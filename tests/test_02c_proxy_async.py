@@ -49,3 +49,19 @@ async def test_proxy_async_single_basic(proto_test_actor):
     pytest.fail("... should not have reached this point")
 
 
+@pytest.mark.asyncio
+async def test_proxy_async_overwrite_amqpc(proto_test_actor):
+
+    Proxy.setDefaultAmqpc(None)
+
+    amqpc = AMQPClient(name=f"{proto_test_actor.name}_client2-{uuid.uuid4().hex[:8]}")
+
+    proxy = await Proxy(proto_test_actor.name).start(amqpc)
+
+    assert (await proxy.ping() == {'text': 'Pong.'})
+
+    amqpc = AMQPClient(name=f"{proto_test_actor.name}_client2-{uuid.uuid4().hex[:8]}")
+
+    proxy = await Proxy(proto_test_actor.name).start(amqpc)
+
+    assert (await proxy.ping() == {'text': 'Pong.'})
