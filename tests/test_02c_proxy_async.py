@@ -62,6 +62,6 @@ async def test_proxy_async_overwrite_amqpc(proto_test_actor):
 
     amqpc = AMQPClient(name=f"{proto_test_actor.name}_client2-{uuid.uuid4().hex[:8]}")
 
-    proxy = await Proxy(proto_test_actor.name).start(amqpc)
+    proxy = await proxy.start(amqpc)
 
     assert (await proxy.ping() == {'text': 'Pong.'})

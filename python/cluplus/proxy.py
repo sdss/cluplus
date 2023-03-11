@@ -87,10 +87,6 @@ class Proxy():
         await self.__delattr_pull_commands_task(cancel=True)
 
     @staticmethod
-    def getDefaultAmqpc():
-        return Proxy.__amqpc
-
-    @staticmethod
     def setDefaultAmqpc(amqpc):
         Proxy.__amqpc = amqpc
 
